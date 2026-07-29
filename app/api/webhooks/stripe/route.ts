@@ -5,9 +5,6 @@ import { supabaseAdmin } from '@/lib/supabaseClient';
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET!;
 
-// Stripe requiere el body crudo (raw) para verificar la firma del webhook
-export const config = { api: { bodyParser: false } };
-
 export async function POST(req: NextRequest) {
   const body = await req.text();
   const signature = req.headers.get('stripe-signature')!;
