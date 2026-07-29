@@ -25,17 +25,20 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(data, { status: 201 });
 }
 
+const PATCHABLE_FIELDS = ['isrc', 'upc', 'release_date', 'genre', 'is_explicit', 'contains_samples', 'is_cover'] as const;
+
 // PATCH /api/tracks
-// body: { id, status?, isrc?, upc?, release_date? }
+// body: { id, status?, isrc?, upc?, release_date?, genre?, is_explicit?, contains_samples?, is_cover? }
 export async function PATCH(req: NextRequest) {
-  const { id, status, isrc, upc, release_date } = await req.json();
+  const body = await req.json();
+  const { id, status } = body;
   if (!id) return NextResponse.json({ error: 'id es requerido' }, { status: 400 });
 
   const update: Record<string, any> = {};
   if (status) update.status = status;
-  if (isrc !== undefined) update.isrc = isrc;
-  if (upc !== undefined) update.upc = upc;
-  if (release_date !== undefined) update.release_date = release_date;
+  for (const field of PATCHABLE_FIELDS) {
+    if (body[field] !== undefined) update[field] = body[field];
+  }
 
   const { data, error } = await supabaseAdmin
     .from('tracks')

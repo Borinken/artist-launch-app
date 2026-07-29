@@ -60,6 +60,15 @@ export async function getRoyalties(artistId: string) {
   return data ?? [];
 }
 
+export async function getCollaborators(artistId: string) {
+  const { data } = await supabaseAdmin
+    .from('artist_collaborators')
+    .select('*, collaborators(*)')
+    .eq('artist_id', artistId)
+    .eq('status', 'active');
+  return data ?? [];
+}
+
 export async function getSocialAccounts(artistId: string) {
   const { data } = await supabaseAdmin
     .from('social_accounts')

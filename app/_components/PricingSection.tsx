@@ -16,24 +16,49 @@ const PLANS = [
     name: 'Starter',
     priceUSD: 29,
     priceEUR: 27,
-    tagline: 'Para tu primer lanzamiento',
-    features: ['1 canción activa por mes', 'Registro de copyright/PRO básico', 'Dashboard de progreso', 'Soporte por email'],
+    tagline: 'Para tu primer lanzamiento, tú solo',
+    features: [
+      '1 canción activa por mes',
+      'Registro básico de copyright/PRO',
+      'Split sheets ilimitados',
+      'Dashboard de progreso',
+      'Soporte por email',
+    ],
+    limits: ['Sin equipo (productor/manager)', 'Distribución y publishing se cobran a la carta'],
     highlighted: false,
   },
   {
     name: 'Professional',
     priceUSD: 79,
     priceEUR: 75,
-    tagline: 'Para artistas en crecimiento',
-    features: ['Hasta 5 canciones por mes', 'PRO/SGAE, MLC/AGEDI y distribución', 'Split sheets ilimitados', 'Contratos y LOD ilimitados', 'Soporte prioritario'],
+    tagline: 'Para artistas en crecimiento, con equipo',
+    features: [
+      'Hasta 5 canciones activas por mes',
+      'Todos los registros: PRO/SGAE, MLC/AGEDI, SoundExchange/AIE',
+      'Contratos y LOD ilimitados',
+      'Hasta 2 miembros de equipo (productor + manager)',
+      'Calendario compartido con tu equipo',
+      '1 distribución incluida al mes',
+      'Soporte prioritario',
+    ],
+    limits: ['Publishing administration se cobra aparte'],
     highlighted: true,
   },
   {
     name: 'Elite',
     priceUSD: 150,
     priceEUR: 140,
-    tagline: 'Para sellos y managers',
-    features: ['Canciones ilimitadas', 'Todo lo incluido en Professional', 'Publishing administration', 'Calendario con recordatorios', 'Gestor dedicado'],
+    tagline: 'Para sellos y managers con roster',
+    features: [
+      'Canciones ilimitadas',
+      'Todo lo incluido en Professional',
+      'Equipo ilimitado de productores y managers',
+      'Publishing administration incluido',
+      'Distribución ilimitada incluida',
+      'Calendario multi-artista para tu roster',
+      'Gestor dedicado + revisión legal de contratos',
+    ],
+    limits: [],
     highlighted: false,
   },
 ];
@@ -91,10 +116,15 @@ export default function PricingSection() {
               </span>
               <span style={{ color: 'var(--muted)', fontSize: 14 }}>/mes</span>
             </div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 24px', flex: 1 }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px', flex: 1 }}>
               {p.features.map((f) => (
                 <li key={f} style={{ display: 'flex', gap: 8, fontSize: 14, marginBottom: 10 }}>
                   <span style={{ color: 'var(--success)' }}>✓</span> {f}
+                </li>
+              ))}
+              {p.limits.map((f) => (
+                <li key={f} style={{ display: 'flex', gap: 8, fontSize: 13, marginBottom: 10, color: 'var(--muted)' }}>
+                  <span>—</span> {f}
                 </li>
               ))}
             </ul>

@@ -23,10 +23,36 @@ export default async function RegistrosPage({ searchParams }: { searchParams: { 
 
   const completed = registrations.filter((r) => r.status === 'completed');
   const pending = registrations.filter((r) => r.status !== 'completed');
+  const publishingRegs = registrations.filter((r) => r.registration_type === 'publishing_admin');
 
   return (
     <DashboardShell artist={artist} artistId={artistId}>
       <h1 style={{ margin: '0 0 24px', fontSize: 28 }}>Registros</h1>
+
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
+        <a href={`/dashboard/distribucion?artist_id=${artistId}`} className="card" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
+          <h3 style={{ margin: '0 0 6px', fontSize: 15 }}>▶ Distribución digital</h3>
+          <p style={{ margin: 0, fontSize: 13, color: 'var(--muted)' }}>
+            Carátula, WAV y metadata para publicar en plataformas. Servicio con costo aparte.
+          </p>
+        </a>
+        <div className="card">
+          <h3 style={{ margin: '0 0 6px', fontSize: 15 }}>§ Publishing Administration</h3>
+          <p style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--muted)' }}>
+            Cobro proactivo de tu catálogo en todas las fuentes (mecánicas, sync, performance) — distinto de la afiliación básica a PRO.
+          </p>
+          {publishingRegs.length > 0 ? (
+            publishingRegs.map((r: any) => (
+              <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 4 }}>
+                <span className={`badge badge-${r.status}`}>{statusLabel[r.status] ?? r.status}</span>
+                <span style={{ color: 'var(--muted)' }}>{formatCost(r.cost_cents, r.currency)}</span>
+              </div>
+            ))
+          ) : (
+            <p style={{ fontSize: 12, color: '#facc15', margin: 0 }}>No solicitado todavía — selecciónalo abajo en "Solicitar registro".</p>
+          )}
+        </div>
+      </div>
 
       <section className="card" style={{ marginBottom: 24 }}>
         <h2 style={{ marginTop: 0, fontSize: 16 }}>Solicitar registro</h2>

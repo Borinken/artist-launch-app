@@ -4,6 +4,7 @@ import DashboardShell from '../../_components/DashboardShell';
 import TrackStatusSelect from '../../_components/TrackStatusSelect';
 import TrackMetaForm from '../../_components/TrackMetaForm';
 import SplitSheetForm from '../../_components/SplitSheetForm';
+import DistributionUploadForm from '../../_components/DistributionUploadForm';
 import { getArtist } from '@/lib/dashboardData';
 import { TRACK_STATUS_LABELS } from '@/lib/trackStatus';
 
@@ -36,7 +37,7 @@ export default async function TrackDetailPage({ params, searchParams }: { params
 
       <section className="card" style={{ marginBottom: 24 }}>
         <h2 style={{ marginTop: 0, fontSize: 16 }}>Metadata</h2>
-        <TrackMetaForm trackId={track.id} isrc={track.isrc} upc={track.upc} releaseDate={track.release_date} />
+        <TrackMetaForm track={track} />
       </section>
 
       <section className="card" style={{ marginBottom: 24 }}>
@@ -83,10 +84,8 @@ export default async function TrackDetailPage({ params, searchParams }: { params
       </section>
 
       <section className="card">
-        <h2 style={{ marginTop: 0, fontSize: 16 }}>Archivos</h2>
-        <p style={{ color: 'var(--muted)', fontSize: 14 }}>
-          La carga de archivos (WAV, letra, portada) requiere integrar Supabase Storage — pendiente de habilitar.
-        </p>
+        <h2 style={{ marginTop: 0, fontSize: 16 }}>Distribución — assets</h2>
+        <DistributionUploadForm trackId={track.id} hasCover={!!track.cover_art_path} hasWav={!!track.wav_file_path} />
       </section>
     </DashboardShell>
   );

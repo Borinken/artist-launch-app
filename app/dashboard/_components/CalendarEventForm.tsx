@@ -10,11 +10,14 @@ const EVENT_TYPES = [
   { value: 'show', label: 'Show / concierto' },
 ];
 
-export default function CalendarEventForm({ artistId }: { artistId: string }) {
+type Collaborator = { id: string; full_name: string; role: string };
+
+export default function CalendarEventForm({ artistId, collaborators = [] }: { artistId: string; collaborators?: Collaborator[] }) {
   const router = useRouter();
   const [title, setTitle] = useState('');
   const [date, setDate] = useState('');
   const [type, setType] = useState(EVENT_TYPES[0].value);
+  const [collaboratorId, setCollaboratorId] = useState('');
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -23,7 +26,7 @@ export default function CalendarEventForm({ artistId }: { artistId: string }) {
     await fetch('/api/calendar-events', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ artist_id: artistId, title, event_date: date, event_type: type }),
+      body: JSON.stringify({ artist_id: artistId, title, event_date: date, event_type: type, collaborator_id: collaboratorId || null }),
     });
     setLoading(false);
     setTitle('');
@@ -47,6 +50,15 @@ export default function CalendarEventForm({ artistId }: { artistId: string }) {
           {EVENT_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
         </select>
       </div>
+      {collaborators.length > 0 && (
+        <div style={{ flex: '1 1 160px' }}>
+          <label className="label">Relevante para (opcional)</label>
+          <select className="input" value={collaboratorId} onChange={(e) => setCollaboratorId(e.target.value)}>
+            <option value="">— Todo el equipo —</option>
+            {collaborators.map((c) => <option key={c.id} value={c.id}>{c.full_name}</option>)}
+          </select>
+        </div>
+      )}
       <button className="btn btn-primary" type="submit" disabled={loading}>{loading ? 'Agregando…' : '+ Agregar fecha'}</button>
     </form>
   );
