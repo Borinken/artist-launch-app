@@ -3,6 +3,13 @@ import { updateSession } from '@/lib/supabase/middleware';
 import { verifyAdminSessionCookie, ADMIN_COOKIE_NAME } from '@/lib/adminAuth';
 
 export async function middleware(request: NextRequest) {
+  // Interruptor temporal: mientras el sitio no sea público y sigas haciendo
+  // ajustes, esto deja /dashboard y /admin abiertos sin login. Ponlo en
+  // 'false' (o quítalo) antes de tener artistas/clientes reales usando esto.
+  if (process.env.DISABLE_AUTH === 'true') {
+    return NextResponse.next();
+  }
+
   const { pathname } = request.nextUrl;
 
   if (pathname.startsWith('/admin') && pathname !== '/admin/login') {
