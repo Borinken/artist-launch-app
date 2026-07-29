@@ -9,6 +9,7 @@ type Track = {
   upc: string | null;
   release_date: string | null;
   genre: string | null;
+  language: string | null;
   is_explicit: boolean;
   contains_samples: boolean;
   is_cover: boolean;
@@ -21,6 +22,7 @@ export default function TrackMetaForm({ track }: { track: Track }) {
     upc: track.upc ?? '',
     release_date: track.release_date ?? '',
     genre: track.genre ?? '',
+    language: track.language ?? '',
     is_explicit: track.is_explicit,
     contains_samples: track.contains_samples,
     is_cover: track.is_cover,
@@ -64,6 +66,10 @@ export default function TrackMetaForm({ track }: { track: Track }) {
         <div style={{ flex: '1 1 140px' }}>
           <label className="label">Género</label>
           <input className="input" value={form.genre} onChange={(e) => update('genre', e.target.value)} />
+        </div>
+        <div style={{ flex: '1 1 140px' }}>
+          <label className="label">Idioma</label>
+          <input className="input" value={form.language} onChange={(e) => update('language', e.target.value)} placeholder="Español, Inglés..." />
         </div>
       </div>
 

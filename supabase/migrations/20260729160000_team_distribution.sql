@@ -29,6 +29,7 @@ create table if not exists artist_collaborators (
   collaborator_id uuid references collaborators(id) on delete cascade,
   role text check (role in ('producer', 'manager')),
   commission_pct numeric(5,2),
+  monthly_fee_cents int,
   status text default 'active' check (status in ('active', 'inactive')),
   created_at timestamptz default now(),
   unique (artist_id, collaborator_id)

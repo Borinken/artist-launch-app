@@ -25,7 +25,7 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(data, { status: 201 });
 }
 
-const PATCHABLE_FIELDS = ['isrc', 'upc', 'release_date', 'genre', 'is_explicit', 'contains_samples', 'is_cover'] as const;
+const PATCHABLE_FIELDS = ['isrc', 'upc', 'release_date', 'genre', 'language', 'is_explicit', 'contains_samples', 'is_cover'] as const;
 
 // PATCH /api/tracks
 // body: { id, status?, isrc?, upc?, release_date?, genre?, is_explicit?, contains_samples?, is_cover? }

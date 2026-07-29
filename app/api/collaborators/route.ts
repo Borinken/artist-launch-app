@@ -37,6 +37,7 @@ export async function POST(req: NextRequest) {
       collaborator_id: collaborator.id,
       role,
       commission_pct: role === 'manager' && body.commission_pct != null ? body.commission_pct : null,
+      monthly_fee_cents: body.monthly_fee_cents ?? null,
     })
     .select()
     .single();
@@ -47,10 +48,10 @@ export async function POST(req: NextRequest) {
 }
 
 // PATCH /api/collaborators
-// body: { collaborator_id, link_id?, commission_pct?, tax_id?, ipi_number?, pro_affiliation?, email?, phone? }
+// body: { collaborator_id, link_id?, commission_pct?, monthly_fee_cents?, tax_id?, ipi_number?, pro_affiliation?, email?, phone? }
 export async function PATCH(req: NextRequest) {
   const body = await req.json();
-  const { collaborator_id, link_id, commission_pct, ...fields } = body;
+  const { collaborator_id, link_id, commission_pct, monthly_fee_cents, ...fields } = body;
 
   if (!collaborator_id) return NextResponse.json({ error: 'collaborator_id requerido' }, { status: 400 });
 
@@ -59,8 +60,12 @@ export async function PATCH(req: NextRequest) {
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  if (link_id && commission_pct !== undefined) {
-    const { error } = await supabaseAdmin.from('artist_collaborators').update({ commission_pct }).eq('id', link_id);
+  const linkUpdate: Record<string, any> = {};
+  if (commission_pct !== undefined) linkUpdate.commission_pct = commission_pct;
+  if (monthly_fee_cents !== undefined) linkUpdate.monthly_fee_cents = monthly_fee_cents;
+
+  if (link_id && Object.keys(linkUpdate).length > 0) {
+    const { error } = await supabaseAdmin.from('artist_collaborators').update(linkUpdate).eq('id', link_id);
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   }
 

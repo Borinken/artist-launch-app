@@ -2,28 +2,29 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { getRegistrationCatalog } from '@/lib/registrationCatalog';
+import { getRegistrationCatalog, catalogKey, formatCost } from '@/lib/registrationCatalog';
 
 type Track = { id: string; title: string };
 
 export default function RegistrationRequestForm({ artistId, tracks, country }: { artistId: string; tracks: Track[]; country?: string | null }) {
   const router = useRouter();
   const catalog = getRegistrationCatalog(country);
-  const [type, setType] = useState(catalog[0].value);
+  const isSpain = country?.trim().toLowerCase() === 'españa' || country?.trim().toLowerCase() === 'spain';
+  const currency = isSpain ? 'eur' : 'usd';
+
+  const [selectedKey, setSelectedKey] = useState(catalogKey(catalog[0]));
   const [trackId, setTrackId] = useState('');
-  const [provider, setProvider] = useState(catalog[0].provider);
-  const [cost, setCost] = useState(String(catalog[0].suggestedCost));
+  const [cost, setCost] = useState(String(catalog[0].cost));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  function handleTypeChange(value: string) {
-    setType(value);
-    const catalogEntry = catalog.find((t) => t.value === value);
-    if (catalogEntry) {
-      setProvider(catalogEntry.provider);
-      setCost(String(catalogEntry.suggestedCost));
-    }
+  const selected = catalog.find((c) => catalogKey(c) === selectedKey) ?? catalog[0];
+
+  function handleSelect(key: string) {
+    setSelectedKey(key);
+    const entry = catalog.find((c) => catalogKey(c) === key);
+    if (entry) setCost(String(entry.cost));
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -38,10 +39,10 @@ export default function RegistrationRequestForm({ artistId, tracks, country }: {
       body: JSON.stringify({
         artist_id: artistId,
         track_id: trackId || null,
-        registration_type: type,
-        provider,
+        registration_type: selected.value,
+        provider: selected.provider,
         cost_cents: Math.round(Number(cost || 0) * 100),
-        currency: country?.trim().toLowerCase() === 'españa' || country?.trim().toLowerCase() === 'spain' ? 'eur' : 'usd',
+        currency,
       }),
     });
     setLoading(false);
@@ -58,10 +59,12 @@ export default function RegistrationRequestForm({ artistId, tracks, country }: {
   return (
     <form onSubmit={handleSubmit}>
       <div style={{ display: 'flex', gap: 8, marginBottom: 12, flexWrap: 'wrap' }}>
-        <div style={{ flex: '2 1 200px' }}>
-          <label className="label">Tipo de registro</label>
-          <select className="input" value={type} onChange={(e) => handleTypeChange(e.target.value)}>
-            {catalog.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+        <div style={{ flex: '2 1 240px' }}>
+          <label className="label">Servicio y proveedor</label>
+          <select className="input" value={selectedKey} onChange={(e) => handleSelect(e.target.value)}>
+            {catalog.map((c) => (
+              <option key={catalogKey(c)} value={catalogKey(c)}>{c.label} — {formatCost(c.cost * 100, currency)}</option>
+            ))}
           </select>
         </div>
         <div style={{ flex: '1 1 140px' }}>
@@ -73,18 +76,14 @@ export default function RegistrationRequestForm({ artistId, tracks, country }: {
         </div>
       </div>
 
-      <div style={{ display: 'flex', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-        <div style={{ flex: '1 1 160px' }}>
-          <label className="label">Proveedor</label>
-          <input className="input" value={provider} onChange={(e) => setProvider(e.target.value)} />
-        </div>
-        <div style={{ flex: '1 1 120px' }}>
-          <label className="label">Costo ({country?.trim().toLowerCase() === 'españa' || country?.trim().toLowerCase() === 'spain' ? 'EUR' : 'USD'})</label>
-          <input className="input" type="number" step="0.01" min="0" value={cost} onChange={(e) => setCost(e.target.value)} />
-        </div>
+      <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 0, marginBottom: 12 }}>{selected.detail}</p>
+
+      <div style={{ marginBottom: 4, maxWidth: 160 }}>
+        <label className="label">Costo a cobrar ({currency.toUpperCase()})</label>
+        <input className="input" type="number" step="0.01" min="0" value={cost} onChange={(e) => setCost(e.target.value)} />
       </div>
       <p style={{ fontSize: 12, color: 'var(--muted)', marginTop: 0, marginBottom: 16 }}>
-        Costo sugerido — ajústalo según tu tarifa real antes de confirmar con el artista.
+        Precargado con el costo investigado del proveedor — ajústalo si tu tarifa real es distinta.
       </p>
 
       <button className="btn btn-primary" type="submit" disabled={loading}>

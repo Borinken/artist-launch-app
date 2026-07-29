@@ -30,7 +30,12 @@ export default async function MonetizacionPage({ searchParams }: { searchParams:
 
   return (
     <DashboardShell artist={artist} artistId={artistId}>
-      <h1 style={{ margin: '0 0 24px', fontSize: 28 }}>Monetización</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
+        <h1 style={{ margin: 0, fontSize: 28 }}>Monetización</h1>
+        <a href={`/api/royalties/export?artist_id=${artistId}`} className="btn btn-ghost" style={{ fontSize: 13, padding: '8px 16px' }}>
+          ⬇ Descargar reporte (Excel/CSV)
+        </a>
+      </div>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 16, marginBottom: 24 }}>
         <div className="card">

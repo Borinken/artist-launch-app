@@ -25,7 +25,7 @@ export default async function EquipoPage({ searchParams }: { searchParams: { art
       </p>
 
       <section className="card" style={{ marginBottom: 24 }}>
-        <CollaboratorForm artistId={artistId} />
+        <CollaboratorForm artistId={artistId} plan={artist.plan} currentCount={collaborators.length} />
       </section>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
@@ -46,6 +46,9 @@ export default async function EquipoPage({ searchParams }: { searchParams: { art
                 )}
               </div>
               {c.email && <p style={{ fontSize: 13, color: 'var(--muted)', margin: '4px 0' }}>{c.email}</p>}
+              <p style={{ fontSize: 13, margin: '4px 0', color: !ac.monthly_fee_cents ? 'var(--success)' : 'var(--text)' }}>
+                {!ac.monthly_fee_cents ? 'Incluido en el plan' : `$${(ac.monthly_fee_cents / 100).toFixed(2)}/mes`}
+              </p>
               <ul style={{ listStyle: 'none', padding: 0, margin: '12px 0 0' }}>
                 {checklist.map((item) => (
                   <li key={item.key} style={{ fontSize: 13, padding: '4px 0', display: 'flex', gap: 8 }}>

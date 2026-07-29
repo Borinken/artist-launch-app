@@ -2,7 +2,7 @@ import DashboardShell from '../_components/DashboardShell';
 import RegistrationRequestForm from '../_components/RegistrationRequestForm';
 import TabbedPanel from '../_components/TabbedPanel';
 import { getArtist, getTracks, getRegistrations } from '@/lib/dashboardData';
-import { REGISTRATION_TYPE_LABELS, formatCost } from '@/lib/registrationCatalog';
+import { REGISTRATION_TYPE_LABELS, formatCost, getRegistrationCatalog } from '@/lib/registrationCatalog';
 
 const statusLabel: Record<string, string> = { pending: 'Pendiente', in_progress: 'En proceso', completed: 'Completo', blocked: 'Bloqueado' };
 
@@ -24,10 +24,42 @@ export default async function RegistrosPage({ searchParams }: { searchParams: { 
   const completed = registrations.filter((r) => r.status === 'completed');
   const pending = registrations.filter((r) => r.status !== 'completed');
   const publishingRegs = registrations.filter((r) => r.registration_type === 'publishing_admin');
+  const catalog = getRegistrationCatalog(artist.country);
+  const isSpain = artist.country?.trim().toLowerCase() === 'españa' || artist.country?.trim().toLowerCase() === 'spain';
+  const currencySymbol = isSpain ? '€' : '$';
 
   return (
     <DashboardShell artist={artist} artistId={artistId}>
-      <h1 style={{ margin: '0 0 24px', fontSize: 28 }}>Registros</h1>
+      <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Registros</h1>
+      <p style={{ color: 'var(--muted)', fontSize: 14, margin: '0 0 20px' }}>
+        Cada registro tiene un costo distinto según el proveedor — esto es lo que cuesta cada uno hoy.
+      </p>
+
+      <section className="card" style={{ marginBottom: 24, overflowX: 'auto' }}>
+        <h2 style={{ marginTop: 0, fontSize: 16 }}>Tabla de costos por servicio</h2>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
+          <thead>
+            <tr>
+              <th style={{ textAlign: 'left', padding: '8px 4px', borderBottom: '1px solid var(--border)', fontSize: 12, color: 'var(--muted)' }}>Servicio</th>
+              <th style={{ textAlign: 'left', padding: '8px 4px', borderBottom: '1px solid var(--border)', fontSize: 12, color: 'var(--muted)' }}>Proveedor</th>
+              <th style={{ textAlign: 'right', padding: '8px 4px', borderBottom: '1px solid var(--border)', fontSize: 12, color: 'var(--muted)' }}>Costo</th>
+              <th style={{ textAlign: 'left', padding: '8px 4px', borderBottom: '1px solid var(--border)', fontSize: 12, color: 'var(--muted)' }}>Detalle</th>
+            </tr>
+          </thead>
+          <tbody>
+            {catalog.map((c) => (
+              <tr key={`${c.value}-${c.provider}`}>
+                <td style={{ padding: '8px 4px', borderBottom: '1px solid var(--border)' }}>{REGISTRATION_TYPE_LABELS[c.value]}</td>
+                <td style={{ padding: '8px 4px', borderBottom: '1px solid var(--border)', color: 'var(--muted)' }}>{c.provider}</td>
+                <td style={{ padding: '8px 4px', borderBottom: '1px solid var(--border)', textAlign: 'right', fontWeight: 600, color: c.cost === 0 ? 'var(--success)' : 'var(--text)' }}>
+                  {c.cost === 0 ? 'Gratis' : `${currencySymbol}${c.cost}`}
+                </td>
+                <td style={{ padding: '8px 4px', borderBottom: '1px solid var(--border)', color: 'var(--muted)', fontSize: 13 }}>{c.detail}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </section>
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
         <a href={`/dashboard/distribucion?artist_id=${artistId}`} className="card" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>

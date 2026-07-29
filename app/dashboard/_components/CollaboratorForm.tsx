@@ -4,8 +4,14 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { COLLABORATOR_ROLES } from '@/lib/collaboratorRoles';
 
-export default function CollaboratorForm({ artistId }: { artistId: string }) {
+const FREE_SLOTS_BY_PLAN: Record<string, number> = { start: 0, pro: 2, studio: Infinity };
+const DEFAULT_MONTHLY_FEE = 15;
+
+export default function CollaboratorForm({ artistId, plan, currentCount }: { artistId: string; plan: string; currentCount: number }) {
   const router = useRouter();
+  const freeSlots = FREE_SLOTS_BY_PLAN[plan] ?? 0;
+  const includedInPlan = currentCount < freeSlots;
+
   const [role, setRole] = useState<'producer' | 'manager'>('producer');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -14,6 +20,7 @@ export default function CollaboratorForm({ artistId }: { artistId: string }) {
   const [ipiNumber, setIpiNumber] = useState('');
   const [proAffiliation, setProAffiliation] = useState('');
   const [commissionPct, setCommissionPct] = useState('');
+  const [monthlyFee, setMonthlyFee] = useState(includedInPlan ? '0' : String(DEFAULT_MONTHLY_FEE));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -34,6 +41,7 @@ export default function CollaboratorForm({ artistId }: { artistId: string }) {
         ipi_number: ipiNumber || undefined,
         pro_affiliation: proAffiliation || undefined,
         commission_pct: role === 'manager' && commissionPct ? Number(commissionPct) : undefined,
+        monthly_fee_cents: Math.round(Number(monthlyFee || 0) * 100),
       }),
     });
     setLoading(false);
@@ -48,6 +56,12 @@ export default function CollaboratorForm({ artistId }: { artistId: string }) {
 
   return (
     <form onSubmit={handleSubmit}>
+      <p style={{ fontSize: 13, color: includedInPlan ? 'var(--success)' : '#facc15', marginTop: 0 }}>
+        {includedInPlan
+          ? `✅ Incluido en tu plan (llevas ${currentCount} de ${freeSlots === Infinity ? 'ilimitados' : freeSlots})`
+          : `⚠ Tu plan incluye ${freeSlots === Infinity ? 'ilimitados' : freeSlots} colaborador(es) — este se cobra aparte`}
+      </p>
+
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 12 }}>
         <div style={{ flex: '1 1 140px' }}>
           <label className="label">Rol</label>
@@ -76,23 +90,29 @@ export default function CollaboratorForm({ artistId }: { artistId: string }) {
         </div>
       </div>
 
-      {role === 'producer' ? (
-        <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+      <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap', marginBottom: 16 }}>
+        {role === 'producer' ? (
+          <>
+            <div style={{ flex: '1 1 140px' }}>
+              <label className="label">IPI number (si co-escribe)</label>
+              <input className="input" value={ipiNumber} onChange={(e) => setIpiNumber(e.target.value)} />
+            </div>
+            <div style={{ flex: '1 1 140px' }}>
+              <label className="label">PRO afiliado</label>
+              <input className="input" value={proAffiliation} onChange={(e) => setProAffiliation(e.target.value)} />
+            </div>
+          </>
+        ) : (
           <div style={{ flex: '1 1 140px' }}>
-            <label className="label">IPI number (si co-escribe)</label>
-            <input className="input" value={ipiNumber} onChange={(e) => setIpiNumber(e.target.value)} />
+            <label className="label">Comisión (%)</label>
+            <input className="input" type="number" step="0.1" value={commissionPct} onChange={(e) => setCommissionPct(e.target.value)} />
           </div>
-          <div style={{ flex: '1 1 140px' }}>
-            <label className="label">PRO afiliado</label>
-            <input className="input" value={proAffiliation} onChange={(e) => setProAffiliation(e.target.value)} />
-          </div>
+        )}
+        <div style={{ flex: '1 1 140px' }}>
+          <label className="label">Costo mensual (USD)</label>
+          <input className="input" type="number" step="0.01" min="0" value={monthlyFee} onChange={(e) => setMonthlyFee(e.target.value)} />
         </div>
-      ) : (
-        <div style={{ marginBottom: 16, maxWidth: 200 }}>
-          <label className="label">Comisión (%)</label>
-          <input className="input" type="number" step="0.1" value={commissionPct} onChange={(e) => setCommissionPct(e.target.value)} />
-        </div>
-      )}
+      </div>
 
       <button className="btn btn-primary" type="submit" disabled={loading}>{loading ? 'Agregando…' : '+ Agregar al equipo'}</button>
       {error && <p style={{ color: '#f87171', fontSize: 13, marginTop: 8 }}>{error}</p>}
