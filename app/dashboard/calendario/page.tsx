@@ -1,25 +1,23 @@
 import DashboardShell from '../_components/DashboardShell';
 import CalendarEventForm from '../_components/CalendarEventForm';
-import { getArtist, getCalendarEvents, getCollaborators } from '@/lib/dashboardData';
+import { getSessionArtist } from '@/lib/getSessionArtist';
+import { getCalendarEvents, getCollaborators } from '@/lib/dashboardData';
 
 const typeLabel: Record<string, string> = {
   lanzamiento: 'Lanzamiento', entrega: 'Entrega de material', vencimiento: 'Vencimiento', show: 'Show',
 };
 
-export default async function CalendarioPage({ searchParams }: { searchParams: { artist_id?: string } }) {
-  const artistId = searchParams.artist_id;
-  if (!artistId) return <main style={{ padding: 60 }}>Falta ?artist_id=</main>;
-
-  const artist = await getArtist(artistId);
+export default async function CalendarioPage() {
+  const artist = await getSessionArtist();
   if (!artist) return <main style={{ padding: 60 }}>Artista no encontrado.</main>;
 
-  const [events, collaboratorLinks] = await Promise.all([getCalendarEvents(artistId), getCollaborators(artistId)]);
+  const [events, collaboratorLinks] = await Promise.all([getCalendarEvents(artist.id), getCollaborators(artist.id)]);
   const collaborators = collaboratorLinks.map((l: any) => ({ id: l.collaborators.id, full_name: l.collaborators.full_name, role: l.role }));
   const collaboratorById = Object.fromEntries(collaborators.map((c) => [c.id, c]));
   const today = new Date();
 
   return (
-    <DashboardShell artist={artist} artistId={artistId}>
+    <DashboardShell artist={artist} artistId={artist.id}>
       <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Calendario</h1>
       {collaborators.length > 0 && (
         <p style={{ color: 'var(--muted)', fontSize: 13, margin: '0 0 24px' }}>
@@ -28,7 +26,7 @@ export default async function CalendarioPage({ searchParams }: { searchParams: {
       )}
 
       <section className="card" style={{ marginBottom: 24 }}>
-        <CalendarEventForm artistId={artistId} collaborators={collaborators} />
+        <CalendarEventForm artistId={artist.id} collaborators={collaborators} />
       </section>
 
       <section className="card">

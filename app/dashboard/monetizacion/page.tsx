@@ -1,16 +1,13 @@
 import DashboardShell from '../_components/DashboardShell';
-import RoyaltyForm from '../_components/RoyaltyForm';
 import MonetizationChart from '../_components/MonetizationChart';
-import { getArtist, getRoyalties } from '@/lib/dashboardData';
+import { getSessionArtist } from '@/lib/getSessionArtist';
+import { getRoyalties } from '@/lib/dashboardData';
 
-export default async function MonetizacionPage({ searchParams }: { searchParams: { artist_id?: string } }) {
-  const artistId = searchParams.artist_id;
-  if (!artistId) return <main style={{ padding: 60 }}>Falta ?artist_id=</main>;
-
-  const artist = await getArtist(artistId);
+export default async function MonetizacionPage() {
+  const artist = await getSessionArtist();
   if (!artist) return <main style={{ padding: 60 }}>Artista no encontrado.</main>;
 
-  const royalties = await getRoyalties(artistId);
+  const royalties = await getRoyalties(artist.id);
 
   const byMonth: Record<string, Record<string, number>> = {};
   for (const r of royalties) {
@@ -29,10 +26,10 @@ export default async function MonetizacionPage({ searchParams }: { searchParams:
   const trendPct = previousTotal > 0 ? Math.round(((currentTotal - previousTotal) / previousTotal) * 100) : null;
 
   return (
-    <DashboardShell artist={artist} artistId={artistId}>
+    <DashboardShell artist={artist} artistId={artist.id}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 12 }}>
-        <h1 style={{ margin: 0, fontSize: 28 }}>Monetización</h1>
-        <a href={`/api/royalties/export?artist_id=${artistId}`} className="btn btn-ghost" style={{ fontSize: 13, padding: '8px 16px' }}>
+        <h1 style={{ margin: 0, fontSize: 28 }}>Mi monetización</h1>
+        <a href={`/api/royalties/export?artist_id=${artist.id}`} className="btn btn-ghost" style={{ fontSize: 13, padding: '8px 16px' }}>
           ⬇ Descargar reporte (Excel/CSV)
         </a>
       </div>
@@ -54,14 +51,9 @@ export default async function MonetizacionPage({ searchParams }: { searchParams:
         </div>
       </div>
 
-      <section className="card" style={{ marginBottom: 24 }}>
+      <section className="card">
         <h2 style={{ marginTop: 0, fontSize: 16 }}>Ingresos por fuente</h2>
         <MonetizationChart data={chartData} />
-      </section>
-
-      <section className="card">
-        <h2 style={{ marginTop: 0, fontSize: 16 }}>Registrar ingreso</h2>
-        <RoyaltyForm artistId={artistId} />
       </section>
     </DashboardShell>
   );

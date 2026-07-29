@@ -1,6 +1,7 @@
 'use client';
 
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { supabaseBrowser } from '@/lib/supabaseBrowser';
 
 const NAV_ITEMS = [
   { href: '/dashboard', label: 'Resumen', exact: true },
@@ -27,7 +28,13 @@ export default function DashboardShell({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const qs = `?artist_id=${artistId}`;
+  const router = useRouter();
+
+  async function handleLogout() {
+    await supabaseBrowser.auth.signOut();
+    router.push('/login');
+    router.refresh();
+  }
 
   return (
     <div style={{ display: 'flex', minHeight: '100vh' }}>
@@ -59,7 +66,7 @@ export default function DashboardShell({
             return (
               <a
                 key={item.href}
-                href={`${item.href}${qs}`}
+                href={item.href}
                 style={{
                   padding: '10px 12px', borderRadius: 8, fontSize: 14,
                   color: isActive ? 'var(--text)' : 'var(--muted)',
@@ -74,7 +81,15 @@ export default function DashboardShell({
           })}
         </nav>
 
-        <a href="/" style={{ fontSize: 12, color: 'var(--muted)', padding: '10px 12px' }}>← Volver al sitio</a>
+        <button
+          onClick={handleLogout}
+          style={{
+            fontSize: 12, color: 'var(--muted)', padding: '10px 12px', background: 'none',
+            border: 'none', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
+          }}
+        >
+          Cerrar sesión
+        </button>
       </aside>
 
       <main style={{ flex: 1, padding: '40px 32px 80px', maxWidth: 1000 }}>

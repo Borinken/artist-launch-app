@@ -30,6 +30,9 @@ const services = [
   { icon: '$', title: 'Monetización', desc: 'Sync, YouTube Content ID, shows y merch — todo bajo el mismo techo de seguimiento.' },
   { icon: '@', title: 'Gestión de redes y presencia digital', desc: 'Seguimiento del estatus de tus perfiles en Instagram, TikTok, Spotify y Apple Music.' },
   { icon: '◔', title: 'Dashboard de seguimiento en tiempo real', desc: 'Visualiza en tiempo real cuánto llevas avanzado en cada etapa de tu lanzamiento.' },
+  { icon: '✦', title: 'Marketing y contenido', desc: 'EPK, bio corta/media/larga, fotos oficiales y calendario de publicación.' },
+  { icon: '☺', title: 'Equipo: productores y managers', desc: 'Agrega a tu productor o manager con su propio checklist de identidad y contratos.' },
+  { icon: '▤', title: 'Calendario de carrera completo', desc: 'Lanzamientos, shows y deadlines de registro — nunca se te pasa una fecha límite.' },
 ];
 
 const partners = ['ASCAP', 'BMI', 'SESAC', 'SGAE', 'AIE', 'AGEDI', 'The MLC', 'TuneCore', 'SoundExchange'];

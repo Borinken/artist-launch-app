@@ -1,22 +1,17 @@
 import DashboardShell from './_components/DashboardShell';
 import ProgressChart from './_components/ProgressChart';
+import { getSessionArtist } from '@/lib/getSessionArtist';
 import {
-  getArtist, getTracks, getRegistrations, getContracts,
+  getTracks, getRegistrations, getContracts,
   getSplitSheetsForTracks, getSocialAccounts, getRoyalties, buildChecklist,
 } from '@/lib/dashboardData';
 
-export default async function DashboardPage({ searchParams }: { searchParams: { artist_id?: string } }) {
-  const artistId = searchParams.artist_id;
-  if (!artistId) {
-    return <main style={{ maxWidth: 720, margin: '0 auto', padding: 60 }}>
-      <p>Falta el parámetro <code>?artist_id=</code> en la URL. En producción esto vendría de la sesión autenticada.</p>
-    </main>;
-  }
-
-  const artist = await getArtist(artistId);
+export default async function DashboardPage() {
+  const artist = await getSessionArtist();
   if (!artist) {
     return <main style={{ maxWidth: 720, margin: '0 auto', padding: 60 }}><p>Artista no encontrado.</p></main>;
   }
+  const artistId = artist.id;
 
   const [tracks, registrations, contracts, socialAccounts, royalties] = await Promise.all([
     getTracks(artistId), getRegistrations(artistId), getContracts(artistId), getSocialAccounts(artistId), getRoyalties(artistId),
@@ -50,7 +45,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
       {missingAudit.length > 0 && (
         <div className="card" style={{ marginBottom: 20, borderColor: '#facc15', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
           <span style={{ fontSize: 14 }}>⚠ Te faltan {missingAudit.length} dato(s) para poder tramitar registros: <strong>{missingAudit.join(', ')}</strong></span>
-          <a href={`/dashboard/perfil?artist_id=${artistId}`} className="btn btn-primary" style={{ padding: '8px 18px', fontSize: 13 }}>Completar ahora</a>
+          <a href="/dashboard/perfil" className="btn btn-primary" style={{ padding: '8px 18px', fontSize: 13 }}>Completar ahora</a>
         </div>
       )}
 
@@ -71,7 +66,7 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
           {checklist.map((item) => (
             <li key={item.key}>
-              <a href={`${item.href}?artist_id=${artistId}`} style={{
+              <a href={item.href} style={{
                 display: 'flex', alignItems: 'center', gap: 10, padding: '10px 4px',
                 borderBottom: '1px solid var(--border)', fontSize: 14, color: 'var(--text)',
               }}>

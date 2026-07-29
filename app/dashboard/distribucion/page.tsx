@@ -1,7 +1,8 @@
 import DashboardShell from '../_components/DashboardShell';
 import DistributionUploadForm from '../_components/DistributionUploadForm';
 import TrackMetaForm from '../_components/TrackMetaForm';
-import { getArtist, getTracks } from '@/lib/dashboardData';
+import { getSessionArtist } from '@/lib/getSessionArtist';
+import { getTracks } from '@/lib/dashboardData';
 import { DISTRIBUTION_REFERENCE, OUR_DISTRIBUTION_FEE } from '@/lib/registrationCatalog';
 
 const statusLabel: Record<string, string> = {
@@ -29,17 +30,14 @@ function businessDaysUntil(dateStr: string): number {
   return count;
 }
 
-export default async function DistribucionPage({ searchParams }: { searchParams: { artist_id?: string } }) {
-  const artistId = searchParams.artist_id;
-  if (!artistId) return <main style={{ padding: 60 }}>Falta ?artist_id=</main>;
-
-  const artist = await getArtist(artistId);
+export default async function DistribucionPage() {
+  const artist = await getSessionArtist();
   if (!artist) return <main style={{ padding: 60 }}>Artista no encontrado.</main>;
 
-  const tracks = await getTracks(artistId);
+  const tracks = await getTracks(artist.id);
 
   return (
-    <DashboardShell artist={artist} artistId={artistId}>
+    <DashboardShell artist={artist} artistId={artist.id}>
       <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Distribución</h1>
       <p style={{ color: 'var(--muted)', fontSize: 14, margin: '0 0 20px' }}>
         Para distribuir una canción se necesita: carátula, master en WAV y la metadata completa —

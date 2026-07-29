@@ -5,17 +5,13 @@ import TrackStatusSelect from '../../_components/TrackStatusSelect';
 import TrackMetaForm from '../../_components/TrackMetaForm';
 import SplitSheetForm from '../../_components/SplitSheetForm';
 import DistributionUploadForm from '../../_components/DistributionUploadForm';
-import { getArtist } from '@/lib/dashboardData';
-import { TRACK_STATUS_LABELS } from '@/lib/trackStatus';
+import { getSessionArtist } from '@/lib/getSessionArtist';
 
-export default async function TrackDetailPage({ params, searchParams }: { params: { trackId: string }; searchParams: { artist_id?: string } }) {
-  const artistId = searchParams.artist_id;
-  if (!artistId) return <main style={{ padding: 60 }}>Falta ?artist_id=</main>;
-
-  const artist = await getArtist(artistId);
+export default async function TrackDetailPage({ params }: { params: { trackId: string } }) {
+  const artist = await getSessionArtist();
   if (!artist) return <main style={{ padding: 60 }}>Artista no encontrado.</main>;
 
-  const { data: track } = await supabaseAdmin.from('tracks').select('*').eq('id', params.trackId).single();
+  const { data: track } = await supabaseAdmin.from('tracks').select('*').eq('id', params.trackId).eq('artist_id', artist.id).single();
   if (!track) return notFound();
 
   const { data: splitSheets } = await supabaseAdmin
@@ -28,8 +24,8 @@ export default async function TrackDetailPage({ params, searchParams }: { params
     .from('contracts').select('*').eq('track_id', track.id);
 
   return (
-    <DashboardShell artist={artist} artistId={artistId}>
-      <a href={`/dashboard/canciones?artist_id=${artistId}`} style={{ fontSize: 13, color: 'var(--muted)' }}>← Canciones</a>
+    <DashboardShell artist={artist} artistId={artist.id}>
+      <a href="/dashboard/canciones" style={{ fontSize: 13, color: 'var(--muted)' }}>← Canciones</a>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', margin: '8px 0 24px' }}>
         <h1 style={{ margin: 0, fontSize: 28 }}>{track.title}</h1>
         <TrackStatusSelect trackId={track.id} status={track.status} />

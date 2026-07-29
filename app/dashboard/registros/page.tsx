@@ -1,142 +1,55 @@
 import DashboardShell from '../_components/DashboardShell';
-import RegistrationRequestForm from '../_components/RegistrationRequestForm';
-import TabbedPanel from '../_components/TabbedPanel';
-import { getArtist, getTracks, getRegistrations } from '@/lib/dashboardData';
-import { REGISTRATION_TYPE_LABELS, formatCost, getRegistrationCatalog } from '@/lib/registrationCatalog';
+import { getSessionArtist } from '@/lib/getSessionArtist';
+import { getRegistrations } from '@/lib/dashboardData';
+import { REGISTRATION_TYPE_LABELS } from '@/lib/registrationCatalog';
 
 const statusLabel: Record<string, string> = { pending: 'Pendiente', in_progress: 'En proceso', completed: 'Completo', blocked: 'Bloqueado' };
 
-export default async function RegistrosPage({ searchParams }: { searchParams: { artist_id?: string } }) {
-  const artistId = searchParams.artist_id;
-  if (!artistId) return <main style={{ padding: 60 }}>Falta ?artist_id=</main>;
-
-  const artist = await getArtist(artistId);
+export default async function RegistrosPage() {
+  const artist = await getSessionArtist();
   if (!artist) return <main style={{ padding: 60 }}>Artista no encontrado.</main>;
 
-  const [tracks, registrations] = await Promise.all([getTracks(artistId), getRegistrations(artistId)]);
-  const trackOptions = tracks.map((t) => ({ id: t.id, title: t.title }));
-
-  const missingFields: string[] = [];
-  if (!artist.tax_id) missingFields.push('NIF/tax ID del artista');
-  if (!artist.country) missingFields.push('País del artista');
-  if (!artist.legal_name) missingFields.push('Nombre legal del artista');
-
+  const registrations = await getRegistrations(artist.id);
   const completed = registrations.filter((r) => r.status === 'completed');
   const pending = registrations.filter((r) => r.status !== 'completed');
-  const publishingRegs = registrations.filter((r) => r.registration_type === 'publishing_admin');
-  const catalog = getRegistrationCatalog(artist.country);
-  const isSpain = artist.country?.trim().toLowerCase() === 'españa' || artist.country?.trim().toLowerCase() === 'spain';
-  const currencySymbol = isSpain ? '€' : '$';
 
   return (
-    <DashboardShell artist={artist} artistId={artistId}>
-      <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Registros</h1>
-      <p style={{ color: 'var(--muted)', fontSize: 14, margin: '0 0 20px' }}>
-        Cada registro tiene un costo distinto según el proveedor — esto es lo que cuesta cada uno hoy.
+    <DashboardShell artist={artist} artistId={artist.id}>
+      <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Mis registros</h1>
+      <p style={{ color: 'var(--muted)', fontSize: 14, margin: '0 0 24px' }}>
+        Estatus de tus registros de derechos. Tu manager en Royal Music Growth se encarga de tramitarlos.
       </p>
 
-      <section className="card" style={{ marginBottom: 24, overflowX: 'auto' }}>
-        <h2 style={{ marginTop: 0, fontSize: 16 }}>Tabla de costos por servicio</h2>
-        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 14 }}>
-          <thead>
-            <tr>
-              <th style={{ textAlign: 'left', padding: '8px 4px', borderBottom: '1px solid var(--border)', fontSize: 12, color: 'var(--muted)' }}>Servicio</th>
-              <th style={{ textAlign: 'left', padding: '8px 4px', borderBottom: '1px solid var(--border)', fontSize: 12, color: 'var(--muted)' }}>Proveedor</th>
-              <th style={{ textAlign: 'right', padding: '8px 4px', borderBottom: '1px solid var(--border)', fontSize: 12, color: 'var(--muted)' }}>Costo</th>
-              <th style={{ textAlign: 'left', padding: '8px 4px', borderBottom: '1px solid var(--border)', fontSize: 12, color: 'var(--muted)' }}>Detalle</th>
-            </tr>
-          </thead>
-          <tbody>
-            {catalog.map((c) => (
-              <tr key={`${c.value}-${c.provider}`}>
-                <td style={{ padding: '8px 4px', borderBottom: '1px solid var(--border)' }}>{REGISTRATION_TYPE_LABELS[c.value]}</td>
-                <td style={{ padding: '8px 4px', borderBottom: '1px solid var(--border)', color: 'var(--muted)' }}>{c.provider}</td>
-                <td style={{ padding: '8px 4px', borderBottom: '1px solid var(--border)', textAlign: 'right', fontWeight: 600, color: c.cost === 0 ? 'var(--success)' : 'var(--text)' }}>
-                  {c.cost === 0 ? 'Gratis' : `${currencySymbol}${c.cost}`}
-                </td>
-                <td style={{ padding: '8px 4px', borderBottom: '1px solid var(--border)', color: 'var(--muted)', fontSize: 13 }}>{c.detail}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, marginBottom: 24 }}>
-        <a href={`/dashboard/distribucion?artist_id=${artistId}`} className="card" style={{ display: 'block', textDecoration: 'none', color: 'inherit' }}>
-          <h3 style={{ margin: '0 0 6px', fontSize: 15 }}>▶ Distribución digital</h3>
-          <p style={{ margin: 0, fontSize: 13, color: 'var(--muted)' }}>
-            Carátula, WAV y metadata para publicar en plataformas. Servicio con costo aparte.
-          </p>
-        </a>
-        <div className="card">
-          <h3 style={{ margin: '0 0 6px', fontSize: 15 }}>§ Publishing Administration</h3>
-          <p style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--muted)' }}>
-            Cobro proactivo de tu catálogo en todas las fuentes (mecánicas, sync, performance) — distinto de la afiliación básica a PRO.
-          </p>
-          {publishingRegs.length > 0 ? (
-            publishingRegs.map((r: any) => (
-              <div key={r.id} style={{ display: 'flex', justifyContent: 'space-between', fontSize: 13, marginTop: 4 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+        <section className="card">
+          <h2 style={{ marginTop: 0, fontSize: 16 }}>En proceso ({pending.length})</h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {pending.map((r: any) => (
+              <li key={r.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', fontSize: 14, display: 'flex', justifyContent: 'space-between' }}>
+                <span>{REGISTRATION_TYPE_LABELS[r.registration_type] ?? r.registration_type} <span style={{ color: 'var(--muted)' }}>· {r.tracks?.title ?? 'General'}</span></span>
                 <span className={`badge badge-${r.status}`}>{statusLabel[r.status] ?? r.status}</span>
-                <span style={{ color: 'var(--muted)' }}>{formatCost(r.cost_cents, r.currency)}</span>
-              </div>
-            ))
-          ) : (
-            <p style={{ fontSize: 12, color: '#facc15', margin: 0 }}>No solicitado todavía — selecciónalo abajo en "Solicitar registro".</p>
-          )}
-        </div>
+              </li>
+            ))}
+            {pending.length === 0 && <li style={{ color: 'var(--muted)', fontSize: 14 }}>Sin registros pendientes.</li>}
+          </ul>
+        </section>
+
+        <section className="card">
+          <h2 style={{ marginTop: 0, fontSize: 16 }}>Completados ({completed.length})</h2>
+          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+            {completed.map((r: any) => (
+              <li key={r.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>{REGISTRATION_TYPE_LABELS[r.registration_type] ?? r.registration_type} <span style={{ color: 'var(--muted)' }}>· {r.tracks?.title ?? 'General'}</span></span>
+                  <span className="badge badge-completed">✅ Completo</span>
+                </div>
+                {r.completed_at && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{new Date(r.completed_at).toLocaleDateString()}</div>}
+              </li>
+            ))}
+            {completed.length === 0 && <li style={{ color: 'var(--muted)', fontSize: 14 }}>Sin registros completados todavía.</li>}
+          </ul>
+        </section>
       </div>
-
-      <section className="card" style={{ marginBottom: 24 }}>
-        <h2 style={{ marginTop: 0, fontSize: 16 }}>Solicitar registro</h2>
-        <RegistrationRequestForm artistId={artistId} tracks={trackOptions} country={artist.country} />
-      </section>
-
-      <section className="card">
-        <TabbedPanel
-          tabs={[
-            {
-              label: `Pendientes / en proceso (${pending.length})`,
-              content: (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {pending.map((r: any) => (
-                    <li key={r.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)' }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 14 }}>
-                        <span>{REGISTRATION_TYPE_LABELS[r.registration_type] ?? r.registration_type} <span style={{ color: 'var(--muted)' }}>· {r.provider ?? '—'} · {r.tracks?.title ?? 'General'}</span></span>
-                        <span className={`badge badge-${r.status}`}>{statusLabel[r.status] ?? r.status}</span>
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{formatCost(r.cost_cents, r.currency)}</div>
-                      {missingFields.length > 0 && (
-                        <div style={{ fontSize: 12, color: '#facc15', marginTop: 4 }}>Falta: {missingFields.join(', ')}</div>
-                      )}
-                    </li>
-                  ))}
-                  {pending.length === 0 && <li style={{ color: 'var(--muted)', fontSize: 14 }}>Sin registros pendientes.</li>}
-                </ul>
-              ),
-            },
-            {
-              label: `Completados (${completed.length})`,
-              content: (
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-                  {completed.map((r: any) => (
-                    <li key={r.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                        <span>{REGISTRATION_TYPE_LABELS[r.registration_type] ?? r.registration_type} <span style={{ color: 'var(--muted)' }}>· {r.provider ?? '—'} · {r.tracks?.title ?? 'General'}</span></span>
-                        <span className="badge badge-completed">Completo</span>
-                      </div>
-                      <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>
-                        {formatCost(r.cost_cents, r.currency)} · completado {r.completed_at ? new Date(r.completed_at).toLocaleDateString() : ''}
-                        {r.external_reference && <> · referencia: {r.external_reference}</>}
-                      </div>
-                    </li>
-                  ))}
-                  {completed.length === 0 && <li style={{ color: 'var(--muted)', fontSize: 14 }}>Sin registros completados todavía.</li>}
-                </ul>
-              ),
-            },
-          ]}
-        />
-      </section>
     </DashboardShell>
   );
 }

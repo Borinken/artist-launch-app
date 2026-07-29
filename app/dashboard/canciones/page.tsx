@@ -1,14 +1,13 @@
 import DashboardShell from '../_components/DashboardShell';
 import TrackForm from '../_components/TrackForm';
-import { getArtist, getTracks } from '@/lib/dashboardData';
+import { getSessionArtist } from '@/lib/getSessionArtist';
+import { getTracks } from '@/lib/dashboardData';
 import { TRACK_STATUS_LABELS } from '@/lib/trackStatus';
 
-export default async function CancionesPage({ searchParams }: { searchParams: { artist_id?: string } }) {
-  const artistId = searchParams.artist_id;
-  if (!artistId) return <main style={{ padding: 60 }}>Falta ?artist_id=</main>;
-
-  const artist = await getArtist(artistId);
+export default async function CancionesPage() {
+  const artist = await getSessionArtist();
   if (!artist) return <main style={{ padding: 60 }}>Artista no encontrado.</main>;
+  const artistId = artist.id;
 
   const tracks = await getTracks(artistId);
 
@@ -39,7 +38,7 @@ export default async function CancionesPage({ searchParams }: { searchParams: { 
               {tracks.map((t) => (
                 <tr key={t.id}>
                   <td style={{ padding: '10px 4px', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
-                    <a href={`/dashboard/canciones/${t.id}?artist_id=${artistId}`} style={{ textDecoration: 'underline' }}>{t.title}</a>
+                    <a href={`/dashboard/canciones/${t.id}`} style={{ textDecoration: 'underline' }}>{t.title}</a>
                   </td>
                   <td style={{ padding: '10px 4px', borderBottom: '1px solid var(--border)', fontSize: 14, color: 'var(--muted)' }}>{t.release_type}</td>
                   <td style={{ padding: '10px 4px', borderBottom: '1px solid var(--border)', fontSize: 14 }}>

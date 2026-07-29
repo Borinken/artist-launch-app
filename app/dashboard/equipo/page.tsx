@@ -1,16 +1,14 @@
 import DashboardShell from '../_components/DashboardShell';
 import CollaboratorForm from '../_components/CollaboratorForm';
-import { getArtist, getCollaborators, getContracts } from '@/lib/dashboardData';
+import { getSessionArtist } from '@/lib/getSessionArtist';
+import { getCollaborators, getContracts } from '@/lib/dashboardData';
 import { COLLABORATOR_ROLE_LABELS, getCollaboratorChecklist } from '@/lib/collaboratorRoles';
 
-export default async function EquipoPage({ searchParams }: { searchParams: { artist_id?: string } }) {
-  const artistId = searchParams.artist_id;
-  if (!artistId) return <main style={{ padding: 60 }}>Falta ?artist_id=</main>;
-
-  const artist = await getArtist(artistId);
+export default async function EquipoPage() {
+  const artist = await getSessionArtist();
   if (!artist) return <main style={{ padding: 60 }}>Artista no encontrado.</main>;
 
-  const [collaborators, contracts] = await Promise.all([getCollaborators(artistId), getContracts(artistId)]);
+  const [collaborators, contracts] = await Promise.all([getCollaborators(artist.id), getContracts(artist.id)]);
 
   const hasSignedContractByRole = (role: string) => {
     const type = role === 'manager' ? 'management_agreement' : 'producer_agreement';
@@ -18,14 +16,14 @@ export default async function EquipoPage({ searchParams }: { searchParams: { art
   };
 
   return (
-    <DashboardShell artist={artist} artistId={artistId}>
+    <DashboardShell artist={artist} artistId={artist.id}>
       <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Equipo</h1>
       <p style={{ color: 'var(--muted)', margin: '0 0 24px', fontSize: 14 }}>
         Productores y managers asociados a este artista. También ven el calendario del artista.
       </p>
 
       <section className="card" style={{ marginBottom: 24 }}>
-        <CollaboratorForm artistId={artistId} plan={artist.plan} currentCount={collaborators.length} />
+        <CollaboratorForm artistId={artist.id} plan={artist.plan} currentCount={collaborators.length} />
       </section>
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: 16 }}>
