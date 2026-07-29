@@ -1,6 +1,7 @@
 'use client';
 
 import { motion, type Variants } from 'framer-motion';
+import MusicHero from './_components/MusicHero';
 
 const services = [
   { icon: '©', title: 'Registro de copyright & PRO', desc: 'SGAE, ASCAP, BMI, SESAC — registramos tu obra donde corresponde.' },
@@ -92,6 +93,7 @@ export default function HomePage() {
           </motion.div>
         </motion.div>
 
+        <MusicHero />
         <Marquee />
       </section>
 

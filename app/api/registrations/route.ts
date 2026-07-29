@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabaseClient';
 
 // POST /api/registrations
-// body: { artist_id, track_id, registration_type, provider }
+// body: { artist_id, track_id, registration_type, provider, cost_cents, currency }
 export async function POST(req: NextRequest) {
-  const { artist_id, track_id, registration_type, provider } = await req.json();
+  const { artist_id, track_id, registration_type, provider, cost_cents, currency } = await req.json();
 
   if (!artist_id || !registration_type) {
     return NextResponse.json(
@@ -20,6 +20,8 @@ export async function POST(req: NextRequest) {
       track_id: track_id ?? null,
       registration_type,
       provider: provider ?? null,
+      cost_cents: cost_cents ?? null,
+      currency: currency ?? 'usd',
       status: 'pending',
     })
     .select()

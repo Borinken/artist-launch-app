@@ -3,7 +3,10 @@ import TrackForm from './_components/TrackForm';
 import SplitSheetForm from './_components/SplitSheetForm';
 import ContractGenerator from './_components/ContractGenerator';
 import ProgressChart from './_components/ProgressChart';
+import ArtistProfileForm from './_components/ArtistProfileForm';
+import RegistrationRequestForm from './_components/RegistrationRequestForm';
 import { CONTRACT_TYPE_LABELS } from '@/lib/contractTemplates';
+import { formatCost, REGISTRATION_TYPE_LABELS } from '@/lib/registrationCatalog';
 
 async function getArtistData(artistId: string) {
   const { data: artist } = await supabaseAdmin
@@ -110,6 +113,14 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
       </header>
 
       <section className="card" style={{ marginBottom: 24 }}>
+        <h2 style={{ marginTop: 0, fontSize: 16 }}>Perfil del artista (auditoría)</h2>
+        <p style={{ color: 'var(--muted)', fontSize: 13, marginTop: -8 }}>
+          Esta información es la que se usa para solicitar y tramitar registros a nombre del artista.
+        </p>
+        <ArtistProfileForm artist={artist} />
+      </section>
+
+      <section className="card" style={{ marginBottom: 24 }}>
         <h2 style={{ marginTop: 0, fontSize: 16 }}>Progreso de carrera</h2>
         <ProgressChart progressPct={artist.career_progress_pct ?? 0} registrationsByStatus={registrationsByStatus} />
       </section>
@@ -117,15 +128,19 @@ export default async function DashboardPage({ searchParams }: { searchParams: { 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24, marginBottom: 24 }}>
         <section className="card">
           <h2 style={{ marginTop: 0, fontSize: 16 }}>Registros</h2>
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 16px' }}>
             {registrations.map((r) => (
-              <li key={r.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
-                <span>{r.registration_type} <span style={{ color: 'var(--muted)' }}>· {r.provider ?? '—'}</span></span>
-                <span className={`badge badge-${r.status}`}>{statusLabel[r.status] ?? r.status}</span>
+              <li key={r.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <span>{REGISTRATION_TYPE_LABELS[r.registration_type] ?? r.registration_type} <span style={{ color: 'var(--muted)' }}>· {r.provider ?? '—'}</span></span>
+                  <span className={`badge badge-${r.status}`}>{statusLabel[r.status] ?? r.status}</span>
+                </div>
+                <span style={{ color: 'var(--muted)', fontSize: 12 }}>{formatCost(r.cost_cents, r.currency)}</span>
               </li>
             ))}
             {registrations.length === 0 && <li style={{ color: 'var(--muted)', fontSize: 14 }}>Sin registros todavía.</li>}
           </ul>
+          <RegistrationRequestForm artistId={artistId} tracks={trackOptions} />
         </section>
 
         <section className="card">
