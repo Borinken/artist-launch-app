@@ -1,0 +1,19 @@
+# dependencies
+/node_modules
+
+# next.js
+/.next/
+/out/
+
+# env files (nunca subir llaves reales)
+.env
+.env.local
+.env.*.local
+
+# supabase local
+/supabase/.temp
+
+# misc
+.DS_Store
+*.pem
+npm-debug.log*
