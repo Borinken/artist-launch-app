@@ -2,23 +2,24 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { REGISTRATION_TYPES } from '@/lib/registrationCatalog';
+import { getRegistrationCatalog } from '@/lib/registrationCatalog';
 
 type Track = { id: string; title: string };
 
-export default function RegistrationRequestForm({ artistId, tracks }: { artistId: string; tracks: Track[] }) {
+export default function RegistrationRequestForm({ artistId, tracks, country }: { artistId: string; tracks: Track[]; country?: string | null }) {
   const router = useRouter();
-  const [type, setType] = useState(REGISTRATION_TYPES[0].value);
+  const catalog = getRegistrationCatalog(country);
+  const [type, setType] = useState(catalog[0].value);
   const [trackId, setTrackId] = useState('');
-  const [provider, setProvider] = useState(REGISTRATION_TYPES[0].provider);
-  const [cost, setCost] = useState(String(REGISTRATION_TYPES[0].suggestedCost));
+  const [provider, setProvider] = useState(catalog[0].provider);
+  const [cost, setCost] = useState(String(catalog[0].suggestedCost));
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
   function handleTypeChange(value: string) {
     setType(value);
-    const catalogEntry = REGISTRATION_TYPES.find((t) => t.value === value);
+    const catalogEntry = catalog.find((t) => t.value === value);
     if (catalogEntry) {
       setProvider(catalogEntry.provider);
       setCost(String(catalogEntry.suggestedCost));
@@ -40,7 +41,7 @@ export default function RegistrationRequestForm({ artistId, tracks }: { artistId
         registration_type: type,
         provider,
         cost_cents: Math.round(Number(cost || 0) * 100),
-        currency: 'usd',
+        currency: country?.trim().toLowerCase() === 'españa' || country?.trim().toLowerCase() === 'spain' ? 'eur' : 'usd',
       }),
     });
     setLoading(false);
@@ -60,7 +61,7 @@ export default function RegistrationRequestForm({ artistId, tracks }: { artistId
         <div style={{ flex: '2 1 200px' }}>
           <label className="label">Tipo de registro</label>
           <select className="input" value={type} onChange={(e) => handleTypeChange(e.target.value)}>
-            {REGISTRATION_TYPES.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+            {catalog.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
           </select>
         </div>
         <div style={{ flex: '1 1 140px' }}>
@@ -78,7 +79,7 @@ export default function RegistrationRequestForm({ artistId, tracks }: { artistId
           <input className="input" value={provider} onChange={(e) => setProvider(e.target.value)} />
         </div>
         <div style={{ flex: '1 1 120px' }}>
-          <label className="label">Costo (USD)</label>
+          <label className="label">Costo ({country?.trim().toLowerCase() === 'españa' || country?.trim().toLowerCase() === 'spain' ? 'EUR' : 'USD'})</label>
           <input className="input" type="number" step="0.01" min="0" value={cost} onChange={(e) => setCost(e.target.value)} />
         </div>
       </div>

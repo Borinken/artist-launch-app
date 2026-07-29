@@ -48,6 +48,37 @@ export async function POST(req: NextRequest) {
   return NextResponse.json({ split_sheet_id: sheet.id, status: 'pending' }, { status: 201 });
 }
 
+// PATCH /api/split-sheets
+// body: { party_id, signed: boolean }
+// Marca la firma de un colaborador individual; cuando todos firmaron, el
+// split sheet completo pasa a 'signed'.
+export async function PATCH(req: NextRequest) {
+  const { party_id, signed } = await req.json();
+  if (!party_id) return NextResponse.json({ error: 'party_id es requerido' }, { status: 400 });
+
+  const { data: party, error: partyError } = await supabaseAdmin
+    .from('split_sheet_parties')
+    .update({ signed_at: signed ? new Date().toISOString() : null })
+    .eq('id', party_id)
+    .select()
+    .single();
+
+  if (partyError) return NextResponse.json({ error: partyError.message }, { status: 500 });
+
+  const { data: allParties } = await supabaseAdmin
+    .from('split_sheet_parties')
+    .select('signed_at')
+    .eq('split_sheet_id', party.split_sheet_id);
+
+  const allSigned = (allParties ?? []).length > 0 && (allParties ?? []).every((p) => p.signed_at);
+  await supabaseAdmin
+    .from('split_sheets')
+    .update({ status: allSigned ? 'signed' : 'pending' })
+    .eq('id', party.split_sheet_id);
+
+  return NextResponse.json(party);
+}
+
 // GET /api/split-sheets?track_id=xxx
 export async function GET(req: NextRequest) {
   const trackId = req.nextUrl.searchParams.get('track_id');

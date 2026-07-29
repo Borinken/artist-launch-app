@@ -1,14 +1,16 @@
 :root {
-  --bg: #08080b;
-  --bg-soft: #101014;
-  --card: #15151b;
-  --border: #24242c;
-  --text: #f4f4f6;
-  --muted: #9797a3;
-  --accent: #a855f7;
-  --accent-2: #ec4899;
-  --accent-3: #6366f1;
+  --bg: #0a0a0c;
+  --bg-soft: #131315;
+  --card: #17171a;
+  --border: #28282c;
+  --text: #f5f2ea;
+  --muted: #97948c;
+  --accent: #d4af37;
+  --accent-2: #b8860b;
+  --accent-3: #e8c766;
   --success: #34d399;
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 * { box-sizing: border-box; }
@@ -18,8 +20,10 @@ html, body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans);
 }
+
+h1, h2, h3, .font-serif { font-family: var(--font-serif); }
 
 a { color: inherit; }
 
@@ -88,13 +92,11 @@ a { color: inherit; }
   font-size: 12px;
   font-weight: 600;
 }
-.badge-pending { background: rgba(250, 204, 21, 0.15); color: #facc15; }
-.badge-in_progress { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-.badge-completed { background: rgba(52, 211, 153, 0.15); color: #34d399; }
-.badge-blocked { background: rgba(248, 113, 113, 0.15); color: #f87171; }
-.badge-draft { background: rgba(151, 151, 163, 0.15); color: #9797a3; }
-.badge-signed { background: rgba(52, 211, 153, 0.15); color: #34d399; }
-.badge-sent { background: rgba(99, 102, 241, 0.15); color: #818cf8; }
-.badge-disputed { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+/* Sistema de 4 colores: verde=completado, ámbar=pendiente/en proceso, rojo=bloqueado, gris=no iniciado */
+.badge-pending, .badge-in_progress, .badge-sent,
+.badge-recorded, .badge-mixed, .badge-mastered { background: rgba(212, 175, 55, 0.15); color: #d4af37; }
+.badge-completed, .badge-signed, .badge-published, .badge-connected { background: rgba(52, 211, 153, 0.15); color: #34d399; }
+.badge-blocked, .badge-disputed { background: rgba(248, 113, 113, 0.15); color: #f87171; }
+.badge-draft, .badge-unreleased { background: rgba(151, 151, 163, 0.15); color: #9797a3; }
 
 ::selection { background: var(--accent); color: white; }

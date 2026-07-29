@@ -16,13 +16,36 @@ export async function POST(req: NextRequest) {
       artist_id,
       title,
       release_type: release_type ?? 'single',
-      status: 'draft',
+      status: 'unreleased',
     })
     .select()
     .single();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   return NextResponse.json(data, { status: 201 });
+}
+
+// PATCH /api/tracks
+// body: { id, status?, isrc?, upc?, release_date? }
+export async function PATCH(req: NextRequest) {
+  const { id, status, isrc, upc, release_date } = await req.json();
+  if (!id) return NextResponse.json({ error: 'id es requerido' }, { status: 400 });
+
+  const update: Record<string, any> = {};
+  if (status) update.status = status;
+  if (isrc !== undefined) update.isrc = isrc;
+  if (upc !== undefined) update.upc = upc;
+  if (release_date !== undefined) update.release_date = release_date;
+
+  const { data, error } = await supabaseAdmin
+    .from('tracks')
+    .update(update)
+    .eq('id', id)
+    .select()
+    .single();
+
+  if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+  return NextResponse.json(data);
 }
 
 // GET /api/tracks?artist_id=xxx
