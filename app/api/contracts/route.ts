@@ -4,7 +4,7 @@ import { supabaseAdmin } from '@/lib/supabaseClient';
 const VALID_TYPES = [
   'producer_agreement', 'management_agreement', 'publishing_agreement',
   'beat_license', 'nda', 'photo_release', 'video_release', 'work_for_hire',
-  'letter_of_direction',
+  'letter_of_direction', 'cesion_derechos_es',
 ];
 
 // POST /api/contracts

@@ -146,26 +146,6 @@ export default function HomePage() {
         </div>
       </Section>
 
-      {/* CASOS DE ÉXITO */}
-      <Section id="casos" eyebrow="Casos de éxito" title="Resultados reales de artistas reales">
-        <motion.div
-          variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true }}
-          style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20, marginTop: 48 }}
-        >
-          {[1, 2, 3].map((i) => (
-            <motion.div key={i} variants={fadeUp} className="card" style={{ textAlign: 'center' }}>
-              <div style={{
-                width: 56, height: 56, borderRadius: '50%', margin: '0 auto 16px',
-                background: 'linear-gradient(135deg, var(--border), var(--bg-soft))', border: '1px dashed var(--border)',
-              }} />
-              <p style={{ color: 'var(--muted)', fontSize: 13, fontStyle: 'italic' }}>
-                [Pendiente: reemplazar con testimonio real de artista]
-              </p>
-            </motion.div>
-          ))}
-        </motion.div>
-      </Section>
-
       {/* FAQ */}
       <Section id="faq" eyebrow="FAQ" title="Preguntas frecuentes">
         <div style={{ marginTop: 48 }}>
@@ -254,12 +234,11 @@ function Footer() {
           { label: 'Cómo funciona', href: '#proceso' },
           { label: 'Precios', href: '#planes' },
           { label: 'Dashboard', href: `/dashboard?artist_id=${DEMO_ARTIST}` },
-          { label: 'Casos de éxito', href: '#casos' },
         ]} />
         <FooterCol title="Legal" links={[
-          { label: 'Términos y condiciones', href: '#' },
-          { label: 'Política de privacidad (RGPD)', href: '#' },
-          { label: 'Aviso legal', href: '#' },
+          { label: 'Términos y condiciones', href: '/legal/terminos' },
+          { label: 'Política de privacidad (RGPD)', href: '/legal/privacidad' },
+          { label: 'Aviso legal', href: '/legal/aviso-legal' },
         ]} />
         <div>
           <div style={{ fontSize: 13, fontWeight: 600, marginBottom: 12 }}>Contacto</div>

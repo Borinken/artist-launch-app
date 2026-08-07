@@ -10,23 +10,27 @@ export type CatalogEntry = {
 };
 
 const US_PR_CATALOG: CatalogEntry[] = [
-  { value: 'pro_affiliation', provider: 'ASCAP', label: 'Afiliación a PRO — ASCAP', cost: 0, detail: 'Gratis para compositores, sin cuota anual' },
-  { value: 'pro_affiliation', provider: 'BMI', label: 'Afiliación a PRO — BMI', cost: 0, detail: 'Gratis para compositores, sin cuota anual' },
-  { value: 'copyright', provider: 'Copyright.gov (US Copyright Office)', label: 'Registro de copyright', cost: 65, detail: 'Tarifa oficial de solicitud estándar electrónica por obra' },
-  { value: 'soundexchange', provider: 'SoundExchange', label: 'Registro de SoundExchange', cost: 0, detail: 'Gratis' },
-  { value: 'the_mlc', provider: 'The MLC', label: 'The MLC (mechanical royalties)', cost: 0, detail: 'Gratis' },
-  { value: 'publishing_admin', provider: 'TuneCore Publishing', label: 'Publishing Administration — TuneCore', cost: 75, detail: '$75 por compositor + 20% de comisión sobre lo cobrado' },
+  { value: 'pro_affiliation', provider: 'ASCAP', label: 'Afiliación a PRO — ASCAP', cost: 0, detail: 'Gratis para compositores, sin cuota anual. Afiliación exclusiva por catálogo — no se puede repartir por canción entre PROs' },
+  { value: 'pro_affiliation', provider: 'BMI', label: 'Afiliación a PRO — BMI', cost: 0, detail: 'Gratis para compositores. Afiliación como editor (publisher) cuesta aparte (~$150-500 según tipo de entidad) — verificar en bmi.com' },
+  { value: 'copyright', provider: 'Copyright.gov (US Copyright Office) — obra individual', label: 'Registro de copyright (un autor, un reclamante)', cost: 45, detail: 'Tarifa reducida para el caso más común de artista solo. Registra la composición (PA) O la grabación (SR) — son copyrights separados, revisa cuál necesitas' },
+  { value: 'copyright', provider: 'Copyright.gov (US Copyright Office) — estándar', label: 'Registro de copyright (solicitud estándar)', cost: 65, detail: 'Para casos con varios autores/reclamantes o combinando PA+SR. Hay una subida propuesta a $85 en trámite desde marzo 2026 — verifica la tarifa vigente antes de cobrar' },
+  { value: 'soundexchange', provider: 'SoundExchange', label: 'Registro de SoundExchange', cost: 0, detail: 'Gratis — cobra regalías digitales de la grabación (radio satelital, webcasting no interactivo)' },
+  { value: 'the_mlc', provider: 'The MLC', label: 'The MLC (mecánicas de streaming en EE.UU.)', cost: 0, detail: 'Gratis. Solo cubre mecánicas digitales dentro de EE.UU. — no cubre sync, ni mecánicas físicas (CD/vinil, todavía vía Harry Fox), ni cobro internacional' },
+  { value: 'isrc', provider: 'USISRC.org', label: 'Prefijo ISRC propio', cost: 95, detail: 'Único, de por vida, hasta 100,000 códigos/año. El distribuidor también los emite gratis, pero quedan ligados a su prefijo (menos portable si cambias de distribuidor)' },
+  { value: 'publishing_admin', provider: 'TuneCore Publishing', label: 'Publishing Administration — TuneCore', cost: 75, detail: '$75 por compositor + 20% de comisión sobre publishing general — pero 50% de comisión específicamente en licencias de sync (desde 2023)' },
   { value: 'publishing_admin', provider: 'Songtrust', label: 'Publishing Administration — Songtrust', cost: 100, detail: '$100 único por compositor + 15% performance / 20% mecánicas' },
+  { value: 'tax_form', provider: 'IRS — W-8BEN', label: 'Formulario de retención fiscal (no residentes de EE.UU.)', cost: 0, detail: 'Obligatorio para artistas fuera de EE.UU. que cobran regalías de PROs/MLC/distribuidoras de EE.UU. Sin este formulario aplica 30% de retención automática. Reduce la retención si hay tratado fiscal (ej. España). Expira a los 3 años, hay que renovarlo' },
   { value: 'spotify_verified', provider: 'Spotify for Artists', label: 'Verificación de artista', cost: 0, detail: 'Gratis' },
   { value: 'apple_verified', provider: 'Apple Music for Artists', label: 'Verificación de artista', cost: 0, detail: 'Gratis' },
 ];
 
 const SPAIN_CATALOG: CatalogEntry[] = [
-  { value: 'pro_affiliation', provider: 'SGAE', label: 'Afiliación a SGAE', cost: 0, detail: 'Cuota de inscripción — verifica tarifa vigente con SGAE' },
-  { value: 'copyright', provider: 'Registro de la Propiedad Intelectual', label: 'Registro de Propiedad Intelectual', cost: 25, detail: 'Estimado — varía por comunidad autónoma' },
-  { value: 'the_mlc', provider: 'AGEDI', label: 'Derechos de productor — AGEDI', cost: 0, detail: 'Estimado — verifica tarifa vigente' },
-  { value: 'soundexchange', provider: 'AIE', label: 'Derechos de artista intérprete — AIE', cost: 0, detail: 'Estimado — verifica tarifa vigente' },
-  { value: 'publishing_admin', provider: 'TuneCore Publishing', label: 'Publishing Administration — TuneCore', cost: 75, detail: '$75 por compositor + 20% de comisión sobre lo cobrado' },
+  { value: 'pro_affiliation', provider: 'SGAE', label: 'Afiliación a SGAE', cost: 15, detail: 'Alta online — cifra sin cuota anual según fuentes disponibles. NO VERIFICADO contra la tarifa oficial vigente en sgae.es — confirmar antes de cobrar' },
+  { value: 'pro_affiliation', provider: 'SEDA / Unison', label: 'Alternativa a SGAE', cost: 0, detail: 'Gestoras alternativas autorizadas tras la liberalización del mercado de gestión colectiva en España — verificar condiciones antes de ofrecerlas' },
+  { value: 'copyright', provider: 'Registro de la Propiedad Intelectual', label: 'Registro de Propiedad Intelectual', cost: 25, detail: 'Rango €8-25 según comunidad autónoma (cada una fija su propia tarifa) — NO obligatorio para tener derechos, la protección es automática al crear la obra (Convenio de Berna); solo sirve como prueba de fecha/autoría' },
+  { value: 'the_mlc', provider: 'AGEDI', label: 'Derechos de productor/máster — AGEDI', cost: 0, detail: 'Cuota de afiliación NO CONFIRMADA — contactar agedi-aie.es directamente antes de publicar un precio' },
+  { value: 'soundexchange', provider: 'AIE', label: 'Derechos de artista intérprete — AIE', cost: 0, detail: 'Cuota de afiliación NO CONFIRMADA — contactar agedi-aie.es directamente antes de publicar un precio' },
+  { value: 'publishing_admin', provider: 'TuneCore Publishing', label: 'Publishing Administration — TuneCore', cost: 75, detail: '$75 por compositor + 20% de comisión sobre publishing general — 50% de comisión específicamente en sync' },
   { value: 'publishing_admin', provider: 'Songtrust', label: 'Publishing Administration — Songtrust', cost: 100, detail: '$100 único por compositor + 15% performance / 20% mecánicas' },
   { value: 'spotify_verified', provider: 'Spotify for Artists', label: 'Verificación de artista', cost: 0, detail: 'Gratis' },
   { value: 'apple_verified', provider: 'Apple Music for Artists', label: 'Verificación de artista', cost: 0, detail: 'Gratis' },

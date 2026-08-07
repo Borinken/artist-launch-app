@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 
 type Track = { id: string; title: string };
 
-const CONTRACT_TYPES: { value: string; label: string }[] = [
+const BASE_CONTRACT_TYPES: { value: string; label: string }[] = [
   { value: 'letter_of_direction', label: 'Carta de instrucción de pago (LOD)' },
   { value: 'management_agreement', label: 'Acuerdo de management' },
   { value: 'producer_agreement', label: 'Acuerdo de productor' },
@@ -14,8 +14,10 @@ const CONTRACT_TYPES: { value: string; label: string }[] = [
   { value: 'nda', label: 'Confidencialidad (NDA)' },
   { value: 'photo_release', label: 'Cesión de imagen (fotos)' },
   { value: 'video_release', label: 'Cesión de imagen (video)' },
-  { value: 'work_for_hire', label: 'Obra por encargo' },
 ];
+
+const US_WORK_TYPE = { value: 'work_for_hire', label: 'Obra por encargo (work for hire)' };
+const ES_WORK_TYPE = { value: 'cesion_derechos_es', label: 'Cesión de derechos patrimoniales (España)' };
 
 const ROLE_BY_TYPE: Record<string, string> = {
   letter_of_direction: 'Beneficiario del pago',
@@ -27,10 +29,13 @@ const ROLE_BY_TYPE: Record<string, string> = {
   photo_release: 'Fotógrafo',
   video_release: 'Videógrafo',
   work_for_hire: 'Contratista',
+  cesion_derechos_es: 'Cedente (retiene derechos morales)',
 };
 
-export default function ContractGenerator({ artistId, tracks }: { artistId: string; tracks: Track[] }) {
+export default function ContractGenerator({ artistId, tracks, country }: { artistId: string; tracks: Track[]; country?: string | null }) {
   const router = useRouter();
+  const isSpain = country?.trim().toLowerCase() === 'españa' || country?.trim().toLowerCase() === 'spain';
+  const CONTRACT_TYPES = [...BASE_CONTRACT_TYPES, isSpain ? ES_WORK_TYPE : US_WORK_TYPE];
   const [contractType, setContractType] = useState('letter_of_direction');
   const [trackId, setTrackId] = useState('');
   const [counterpartyName, setCounterpartyName] = useState('');

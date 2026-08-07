@@ -8,6 +8,7 @@ export const CONTRACT_TYPE_LABELS: Record<string, string> = {
   video_release: 'Cesión de derechos de imagen (video)',
   work_for_hire: 'Contrato de obra por encargo',
   letter_of_direction: 'Carta de instrucción de pago (LOD)',
+  cesion_derechos_es: 'Cesión de derechos patrimoniales (España)',
 };
 
 export const CONTRACT_TYPE_OBJECT: Record<string, string> = {
@@ -29,6 +30,8 @@ export const CONTRACT_TYPE_OBJECT: Record<string, string> = {
     'El Contratista realiza la obra descrita como trabajo por encargo, cediendo la titularidad al Artista/Contratante.',
   letter_of_direction:
     'El Artista instruye de forma irrevocable al distribuidor/administrador indicado para que pague directamente al Beneficiario el porcentaje de regalías aquí especificado, correspondientes a la Obra indicada, hasta nueva instrucción por escrito.',
+  cesion_derechos_es:
+    'El Cedente transfiere al Cesionario los derechos patrimoniales de explotación de la Obra indicada, en el porcentaje, territorio y duración aquí señalados. Conforme a la legislación española (derecho de autor), los derechos morales del Cedente — entre ellos el derecho a ser reconocido como autor y a la integridad de la Obra — son irrenunciables e intransferibles y permanecen en todo momento en su titularidad, con independencia de esta cesión. Este documento no equivale a un "work for hire" de tipo estadounidense: no convierte al Cesionario en autor original de la Obra.',
 };
 
 export function escapeHtml(value: string): string {

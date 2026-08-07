@@ -86,7 +86,7 @@ export default async function AdminArtistPage({ params }: { params: { artistId: 
             ))}
             {contracts.length === 0 && <li style={{ color: 'var(--muted)', fontSize: 13 }}>Sin documentos todavía.</li>}
           </ul>
-          <ContractGenerator artistId={artist.id} tracks={trackOptions} />
+          <ContractGenerator artistId={artist.id} tracks={trackOptions} country={artist.country} />
         </section>
 
         <section className="card">

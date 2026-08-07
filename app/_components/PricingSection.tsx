@@ -9,11 +9,10 @@ const fadeUp = {
 };
 const stagger = { hidden: {}, show: { transition: { staggerChildren: 0.08 } } };
 
-const DEMO_ARTIST = '5a0056f9-1445-4960-9cc5-a478b4865d5d';
-
 const PLANS = [
   {
     name: 'Starter',
+    slug: 'start',
     priceUSD: 29,
     priceEUR: 27,
     tagline: 'Para tu primer lanzamiento, tú solo',
@@ -30,6 +29,7 @@ const PLANS = [
   },
   {
     name: 'Professional',
+    slug: 'pro',
     priceUSD: 79,
     priceEUR: 75,
     tagline: 'Para artistas en crecimiento, con equipo',
@@ -49,6 +49,7 @@ const PLANS = [
   },
   {
     name: 'Elite',
+    slug: 'studio',
     priceUSD: 150,
     priceEUR: 140,
     tagline: 'Para sellos y managers con roster',
@@ -68,6 +69,26 @@ const PLANS = [
 
 export default function PricingSection() {
   const [region, setRegion] = useState<'us' | 'es'>('us');
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null);
+  const [checkoutError, setCheckoutError] = useState<string | null>(null);
+
+  async function handleChoose(slug: string) {
+    setLoadingPlan(slug);
+    setCheckoutError(null);
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: slug, region }),
+      });
+      const data = await res.json();
+      if (!res.ok || !data.url) throw new Error(data.error || 'No se pudo iniciar el pago');
+      window.location.href = data.url;
+    } catch (err: any) {
+      setCheckoutError(err.message || 'No se pudo iniciar el pago. Intenta de nuevo.');
+      setLoadingPlan(null);
+    }
+  }
 
   return (
     <div>
@@ -131,16 +152,29 @@ export default function PricingSection() {
                 </li>
               ))}
             </ul>
-            <a href={`/dashboard?artist_id=${DEMO_ARTIST}`} className={p.highlighted ? 'btn btn-primary' : 'btn btn-ghost'} style={{ width: '100%' }}>
-              Elegir {p.name}
-            </a>
+            <button
+              onClick={() => handleChoose(p.slug)}
+              disabled={loadingPlan !== null}
+              className={p.highlighted ? 'btn btn-primary' : 'btn btn-ghost'}
+              style={{ width: '100%' }}
+            >
+              {loadingPlan === p.slug ? 'Redirigiendo…' : `Elegir ${p.name}`}
+            </button>
           </motion.div>
         ))}
       </motion.div>
 
+      {checkoutError && (
+        <p style={{ textAlign: 'center', color: '#f87171', fontSize: 13, marginTop: 16 }}>{checkoutError}</p>
+      )}
+
       <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 13, marginTop: 24 }}>
         Los gastos de registro ante terceros (Copyright Office, SGAE, TuneCore, etc.) se facturan aparte.
         {region === 'es' && ' Precios en EUR aproximados — ajusta según tu tarifa real en España.'}
+      </p>
+      <p style={{ textAlign: 'center', color: 'var(--muted)', fontSize: 12, marginTop: 8 }}>
+        Al continuar aceptas nuestros{' '}
+        <a href="/legal/terminos" style={{ textDecoration: 'underline' }}>Términos y condiciones</a>.
       </p>
     </div>
   );

@@ -7,7 +7,6 @@ const LINKS = [
   { href: '#proceso', label: 'Cómo funciona' },
   { href: '#servicios', label: 'Servicios' },
   { href: '#planes', label: 'Precios' },
-  { href: '#casos', label: 'Casos de éxito' },
   { href: '#faq', label: 'FAQ' },
 ];
 
