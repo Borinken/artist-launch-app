@@ -274,9 +274,11 @@ function NewsletterForm() {
       <form
         onSubmit={(e) => {
           e.preventDefault();
+          // TODO: conectar a un proveedor de email real (ESP) — hoy solo confirma en UI.
           const form = e.currentTarget;
           const msg = form.querySelector('.newsletter-msg') as HTMLElement | null;
-          if (msg) msg.textContent = '¡Gracias! (conecta este formulario a tu proveedor de email)';
+          if (msg) msg.textContent = '¡Gracias! Te avisaremos por email.';
+          form.reset();
         }}
         style={{ display: 'flex', gap: 6 }}
       >

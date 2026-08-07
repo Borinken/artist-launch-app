@@ -10,8 +10,6 @@ const LINKS = [
   { href: '#faq', label: 'FAQ' },
 ];
 
-const DEMO_ARTIST = '5a0056f9-1445-4960-9cc5-a478b4865d5d';
-
 export default function Nav() {
   const [solid, setSolid] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -35,7 +33,7 @@ export default function Nav() {
 
         <div className="nav-links" style={{ display: 'flex', gap: 28, alignItems: 'center', fontSize: 14 }}>
           {LINKS.map((l) => <a key={l.href} href={l.href} style={{ color: 'var(--muted)' }}>{l.label}</a>)}
-          <a href={`/dashboard?artist_id=${DEMO_ARTIST}`} className="btn btn-ghost" style={{ padding: '8px 16px', fontSize: 13 }}>Iniciar sesión</a>
+          <a href="/login" className="btn btn-ghost" style={{ padding: '8px 16px', fontSize: 13 }}>Iniciar sesión</a>
           <a href="#planes" className="btn btn-primary" style={{ padding: '8px 18px', fontSize: 13 }}>Solicitar auditoría gratis</a>
         </div>
 
