@@ -2,11 +2,15 @@ import { NextResponse, type NextRequest } from 'next/server';
 import { updateSession } from '@/lib/supabase/middleware';
 import { verifyAdminSessionCookie, ADMIN_COOKIE_NAME } from '@/lib/adminAuth';
 
+// Local development escape hatch: skips the login redirect so the dashboard
+// can be worked on without seeding an auth user. Deliberately inert in
+// production — a misconfigured environment variable must never be enough to
+// expose /admin.
+const AUTH_DISABLED =
+  process.env.DISABLE_AUTH === 'true' && process.env.NODE_ENV !== 'production';
+
 export async function middleware(request: NextRequest) {
-  // Interruptor temporal: mientras el sitio no sea público y sigas haciendo
-  // ajustes, esto deja /dashboard y /admin abiertos sin login. Ponlo en
-  // 'false' (o quítalo) antes de tener artistas/clientes reales usando esto.
-  if (process.env.DISABLE_AUTH === 'true') {
+  if (AUTH_DISABLED) {
     return NextResponse.next();
   }
 

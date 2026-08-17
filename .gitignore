@@ -19,3 +19,8 @@
 npm-debug.log*
 .vercel
 .env*
+
+# secrets — never commit
+.env
+.env.*
+!.env.example

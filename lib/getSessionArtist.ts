@@ -1,15 +1,18 @@
 import { createClient } from '@/lib/supabase/server';
 import { supabaseAdmin } from '@/lib/supabaseClient';
 
-// Artista de respaldo mientras DISABLE_AUTH=true (ver middleware.ts) — el
-// mismo artista demo que se usaba antes de tener login real.
+// Demo record returned by the local development escape hatch (see
+// middleware.ts). Gated on NODE_ENV so production can never fall into this
+// branch — it reads through the service-role client and would bypass RLS.
 const DEMO_ARTIST_ID = '5a0056f9-1445-4960-9cc5-a478b4865d5d';
+const AUTH_DISABLED =
+  process.env.DISABLE_AUTH === 'true' && process.env.NODE_ENV !== 'production';
 
-// Deriva el artista de la SESIÓN autenticada — nunca de un parámetro de URL.
-// Devuelve null si no hay sesión o si el usuario logueado no tiene un
-// artista vinculado (auth_user_id).
+// Resolves the artist from the authenticated session — never from a URL
+// parameter. Returns null when there is no session, or when the signed-in user
+// has no artist linked via auth_user_id.
 export async function getSessionArtist() {
-  if (process.env.DISABLE_AUTH === 'true') {
+  if (AUTH_DISABLED) {
     const { data: demoArtist } = await supabaseAdmin.from('artists').select('*').eq('id', DEMO_ARTIST_ID).single();
     return demoArtist;
   }
