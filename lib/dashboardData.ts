@@ -79,9 +79,12 @@ export async function getSocialAccounts(artistId: string) {
 
 export type ChecklistItem = {
   key: string;
-  label: string;
+  label: string;      // qué hay que lograr, en palabras simples
+  why: string;        // por qué importa, en una frase
   done: boolean;
   href: string;
+  cta: string;        // texto del botón
+  who: 'tu' | 'equipo'; // quién tiene que mover ficha
 };
 
 export function buildChecklist(params: {
@@ -93,12 +96,34 @@ export function buildChecklist(params: {
 }): ChecklistItem[] {
   const { artist, tracks, splitSheets, registrations, socialAccounts } = params;
   const profileComplete = !!(artist.legal_name && artist.email && artist.tax_id && artist.country);
+  const hasUnsignedSheet = splitSheets.some((s) => s.status !== 'signed');
   return [
-    { key: 'profile', label: 'Perfil completo', done: profileComplete, href: '/dashboard/perfil' },
-    { key: 'track', label: 'Primera canción cargada', done: tracks.length > 0, href: '/dashboard/canciones' },
-    { key: 'split', label: 'Split sheet firmado', done: splitSheets.some((s) => s.status === 'signed'), href: '/dashboard/contratos' },
-    { key: 'registration', label: 'Primer registro solicitado', done: registrations.length > 0, href: '/dashboard/registros' },
-    { key: 'distribution', label: 'Distribución activa', done: tracks.some((t) => t.status === 'published'), href: '/dashboard/canciones' },
-    { key: 'social', label: 'Redes conectadas', done: socialAccounts.some((s) => s.status === 'connected'), href: '/dashboard/redes' },
+    {
+      key: 'profile', label: 'Completa tus datos', done: profileComplete, href: '/dashboard/perfil', cta: 'Completar mis datos', who: 'tu',
+      why: 'Tu nombre legal, país y número de identificación fiscal. Sin esto no podemos registrar nada a tu nombre.',
+    },
+    {
+      key: 'track', label: 'Añade tu primera canción', done: tracks.length > 0, href: '/dashboard/canciones', cta: 'Añadir mi canción', who: 'tu',
+      why: 'Solo con el título es suficiente por ahora. Los demás detalles se completan después.',
+    },
+    {
+      key: 'split', label: 'Firma quién es dueño de qué en tu canción', done: splitSheets.some((s) => s.status === 'signed'),
+      href: '/dashboard/contratos', cta: hasUnsignedSheet ? 'Ver y firmar' : 'Ver mis contratos', who: hasUnsignedSheet ? 'tu' : 'equipo',
+      why: 'Un papel simple (se llama "split sheet") donde queda escrito el porcentaje de cada persona. Evita discusiones cuando la canción genere dinero.',
+    },
+    {
+      key: 'registration', label: 'Registra tu canción para poder cobrar', done: registrations.length > 0, href: '/dashboard/registros', cta: 'Ver cómo va', who: 'equipo',
+      why: 'Registrarla te permite cobrar cada vez que suene. Nosotros hacemos el trámite y tú ves aquí cómo avanza.',
+    },
+    {
+      key: 'distribution', label: 'Publica tu música en Spotify, Apple Music y más', done: tracks.some((t) => t.status === 'published'),
+      href: '/dashboard/distribucion', cta: 'Preparar mi publicación', who: 'tu',
+      why: 'Subes la portada y el audio, y nosotros la enviamos a todas las plataformas.',
+    },
+    {
+      key: 'social', label: 'Conecta tus redes sociales', done: socialAccounts.some((s) => s.status === 'connected'),
+      href: '/dashboard/redes', cta: 'Añadir mis redes', who: 'tu',
+      why: 'Así vemos tus seguidores y oyentes en un solo lugar.',
+    },
   ];
 }

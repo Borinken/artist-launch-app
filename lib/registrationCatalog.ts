@@ -77,3 +77,17 @@ export const OUR_DISTRIBUTION_FEE = {
   currency: 'eur',
   detail: 'Tarifa fija por gestionar el envío y entregar tu reporte de resultados — el costo del distribuidor (TuneCore) se factura aparte',
 };
+
+// Qué es cada registro, dicho para alguien que no sabe nada del tema.
+export const REGISTRATION_TYPE_PLAIN: Record<string, string> = {
+  pro_affiliation: 'Te apunta a la entidad que cobra por ti cuando tu música suena en radio, TV, locales y conciertos.',
+  copyright: 'Deja constancia oficial de que la canción es tuya y desde qué fecha.',
+  the_mlc: 'Cobra el dinero que genera tu música en plataformas de streaming y comunicación pública.',
+  soundexchange: 'Cobra por tu grabación cuando suena en radio digital y servicios similares.',
+  distribution: 'Publica tu canción en Spotify, Apple Music y demás plataformas.',
+  publishing_admin: 'Alguien que reclama por ti, en todo el mundo, el dinero de tu composición.',
+  spotify_verified: 'Te da la marca de artista verificado y acceso a tus estadísticas en Spotify.',
+  apple_verified: 'Te da la marca de artista verificado y acceso a tus estadísticas en Apple Music.',
+  isrc: 'El "DNI" de tu grabación: un código único que la identifica en todas partes.',
+  tax_form: 'Un formulario de impuestos para que EE.UU. no te retenga el 30% de lo que cobres.',
+};

@@ -44,13 +44,13 @@ export default function TrackForm({ artistId }: { artistId: string }) {
       <div style={{ width: 140 }}>
         <label className="label">Tipo</label>
         <select className="input" value={releaseType} onChange={(e) => setReleaseType(e.target.value)}>
-          <option value="single">Single</option>
-          <option value="ep">EP</option>
-          <option value="album">Álbum</option>
+          <option value="single">Sencillo (1 canción)</option>
+          <option value="ep">EP (varias canciones)</option>
+          <option value="album">Álbum (disco completo)</option>
         </select>
       </div>
       <button className="btn btn-primary" type="submit" disabled={loading}>
-        {loading ? 'Agregando…' : '+ Agregar canción'}
+        {loading ? 'Agregando…' : 'Añadir canción'}
       </button>
       {error && <p style={{ color: '#f87171', fontSize: 13, width: '100%' }}>{error}</p>}
     </form>

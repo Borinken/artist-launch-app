@@ -1,4 +1,6 @@
 import DashboardShell from '../_components/DashboardShell';
+import PageHeader from '../_components/PageHeader';
+import EmptyState from '../_components/EmptyState';
 import DistributionUploadForm from '../_components/DistributionUploadForm';
 import TrackMetaForm from '../_components/TrackMetaForm';
 import { getSessionArtist } from '@/lib/getSessionArtist';
@@ -6,7 +8,7 @@ import { getTracks } from '@/lib/dashboardData';
 import { DISTRIBUTION_REFERENCE, OUR_DISTRIBUTION_FEE } from '@/lib/registrationCatalog';
 
 const statusLabel: Record<string, string> = {
-  not_started: 'No iniciado', assets_submitted: 'Assets enviados', in_review: 'En revisión', distributed: 'Distribuido',
+  not_started: 'Sin empezar', assets_submitted: 'Archivos recibidos', in_review: 'La estamos revisando', distributed: 'Ya está publicada',
 };
 const statusBadge: Record<string, string> = {
   not_started: 'badge-unreleased', assets_submitted: 'badge-pending', in_review: 'badge-pending', distributed: 'badge-published',
@@ -38,39 +40,27 @@ export default async function DistribucionPage() {
 
   return (
     <DashboardShell artist={artist} artistId={artist.id}>
-      <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Distribución</h1>
-      <p style={{ color: 'var(--muted)', fontSize: 14, margin: '0 0 20px' }}>
-        Para distribuir una canción se necesita: carátula, master en WAV y la metadata completa —
-        igual que pide cualquier distribuidor (TuneCore, DistroKid, etc.).
-      </p>
+      <PageHeader
+        title="Publicar mi música"
+        subtitle="Aquí preparas tu canción para que suene en Spotify, Apple Music y las demás plataformas."
+        tip={
+          <>
+            <b>Son 3 pasos por canción:</b> 1) completa los datos de la canción, 2) sube la portada y el audio, 3) nosotros la enviamos.
+            Hazlo con al menos 10 días hábiles de margen antes de la fecha de salida.
+          </>
+        }
+      />
 
-      <section className="card" style={{ marginBottom: 24 }}>
-        <h2 style={{ marginTop: 0, fontSize: 16 }}>Nuestra tarifa vs. el costo del distribuidor</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-          <div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase' }}>Nuestra gestión</div>
-            <div style={{ fontSize: 26, fontWeight: 700, fontFamily: 'var(--font-serif)' }}>€{OUR_DISTRIBUTION_FEE.amount} <span style={{ fontSize: 13, color: 'var(--muted)', fontWeight: 400 }}>fijo</span></div>
-            <p style={{ fontSize: 12, color: 'var(--muted)', margin: '4px 0 0' }}>{OUR_DISTRIBUTION_FEE.detail}</p>
-          </div>
-          <div>
-            <div style={{ fontSize: 12, color: 'var(--muted)', textTransform: 'uppercase' }}>Costo del distribuidor ({DISTRIBUTION_REFERENCE.provider}, referencia)</div>
-            <ul style={{ listStyle: 'none', padding: 0, margin: '6px 0 0' }}>
-              {DISTRIBUTION_REFERENCE.plans.map((p) => (
-                <li key={p.label} style={{ fontSize: 13, display: 'flex', justifyContent: 'space-between', padding: '2px 0' }}>
-                  <span style={{ color: 'var(--muted)' }}>{p.label}</span><span>{p.cost}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-        <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--border)', fontSize: 12, color: 'var(--muted)' }}>
-          <p style={{ margin: '0 0 4px' }}>📐 Carátula: {DISTRIBUTION_REFERENCE.coverArtSpec}</p>
-          <p style={{ margin: '0 0 4px' }}>🎵 Audio: {DISTRIBUTION_REFERENCE.audioSpec}</p>
-          <p style={{ margin: 0 }}>🗓 {DISTRIBUTION_REFERENCE.leadTime}</p>
-        </div>
-      </section>
-
-      {tracks.length === 0 && <p style={{ color: 'var(--muted)', fontSize: 14 }}>Agrega una canción en la sección Canciones primero.</p>}
+      {tracks.length === 0 && (
+        <section className="card" style={{ marginBottom: 24 }}>
+          <EmptyState
+            title="Primero añade una canción"
+            text="Para publicar necesitas tener al menos una canción en tu lista."
+            href="/dashboard/canciones"
+            cta="Añadir mi canción"
+          />
+        </section>
+      )}
 
       <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
         {tracks.map((t: any) => {
@@ -86,13 +76,13 @@ export default async function DistribucionPage() {
               </div>
 
               <div style={{ fontSize: 13, color: metadataComplete(t) ? 'var(--success)' : '#facc15', marginBottom: 4 }}>
-                {metadataComplete(t) ? '✅ Metadata completa' : '⏳ Falta metadata (género, idioma o fecha de lanzamiento)'}
+                {metadataComplete(t) ? '✅ Datos de la canción completos' : '⏳ Faltan datos: género, idioma o fecha de salida'}
               </div>
               {daysUntil !== null && (
                 <div style={{ fontSize: 13, color: leadTimeOk ? 'var(--success)' : '#f87171', marginBottom: 12 }}>
                   {leadTimeOk
-                    ? `✅ Faltan ${daysUntil} días hábiles para el lanzamiento — cumple el mínimo de 10`
-                    : `⚠ Solo faltan ${daysUntil} días hábiles — se recomiendan al menos 10 antes de la fecha de lanzamiento`}
+                    ? `✅ Faltan ${daysUntil} días hábiles para la salida — vas a tiempo`
+                    : `⚠ Solo faltan ${daysUntil} días hábiles — lo ideal son 10 o más. Puede que haya que mover la fecha`}
                 </div>
               )}
 
@@ -105,6 +95,24 @@ export default async function DistribucionPage() {
           );
         })}
       </div>
+
+      <section className="card" style={{ marginTop: 24 }}>
+        <details className="faq" style={{ borderBottom: 'none', padding: 0 }}>
+          <summary>¿Qué archivos necesito y cuánto cuesta?</summary>
+          <div style={{ marginTop: 14, fontSize: 14.5, lineHeight: 1.6, color: 'var(--muted)' }}>
+            <p style={{ margin: '0 0 6px' }}><strong style={{ color: 'var(--text)' }}>Portada:</strong> {DISTRIBUTION_REFERENCE.coverArtSpec}.</p>
+            <p style={{ margin: '0 0 6px' }}><strong style={{ color: 'var(--text)' }}>Audio:</strong> {DISTRIBUTION_REFERENCE.audioSpec}.</p>
+            <p style={{ margin: '0 0 6px' }}><strong style={{ color: 'var(--text)' }}>Plazo:</strong> {DISTRIBUTION_REFERENCE.leadTime}.</p>
+            <p style={{ margin: '12px 0 6px' }}>
+              <strong style={{ color: 'var(--text)' }}>Nuestro trabajo:</strong> €{OUR_DISTRIBUTION_FEE.amount} fijos por canción. {OUR_DISTRIBUTION_FEE.detail}.
+            </p>
+            <p style={{ margin: '0 0 4px' }}><strong style={{ color: 'var(--text)' }}>Lo que cobra el distribuidor ({DISTRIBUTION_REFERENCE.provider}), como referencia:</strong></p>
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              {DISTRIBUTION_REFERENCE.plans.map((p) => <li key={p.label}>{p.label}: {p.cost}</li>)}
+            </ul>
+          </div>
+        </details>
+      </section>
     </DashboardShell>
   );
 }

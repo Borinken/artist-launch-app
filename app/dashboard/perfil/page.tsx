@@ -1,4 +1,5 @@
 import DashboardShell from '../_components/DashboardShell';
+import PageHeader from '../_components/PageHeader';
 import ArtistProfileForm from '../_components/ArtistProfileForm';
 import { getSessionArtist } from '@/lib/getSessionArtist';
 
@@ -8,10 +9,11 @@ export default async function PerfilPage() {
 
   return (
     <DashboardShell artist={artist} artistId={artist.id}>
-      <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Perfil del artista</h1>
-      <p style={{ color: 'var(--muted)', margin: '0 0 24px' }}>
-        Esta información se usa para solicitar y tramitar registros a nombre del artista.
-      </p>
+      <PageHeader
+        title="Mis datos"
+        subtitle="Tu información personal. La usamos para hacer los trámites a tu nombre."
+        tip={<><b>Es lo primero que hay que completar.</b> Sin tu nombre legal, país y número de identificación fiscal (NIF, DNI o similar) no podemos registrar nada.</>}
+      />
       <ArtistProfileForm artist={artist} />
     </DashboardShell>
   );

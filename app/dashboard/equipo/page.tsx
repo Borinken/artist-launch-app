@@ -1,4 +1,6 @@
 import DashboardShell from '../_components/DashboardShell';
+import PageHeader from '../_components/PageHeader';
+import EmptyState from '../_components/EmptyState';
 import CollaboratorForm from '../_components/CollaboratorForm';
 import { getSessionArtist } from '@/lib/getSessionArtist';
 import { getCollaborators, getContracts } from '@/lib/dashboardData';
@@ -17,12 +19,15 @@ export default async function EquipoPage() {
 
   return (
     <DashboardShell artist={artist} artistId={artist.id}>
-      <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Equipo</h1>
-      <p style={{ color: 'var(--muted)', margin: '0 0 24px', fontSize: 14 }}>
-        Productores y managers asociados a este artista. También ven el calendario del artista.
-      </p>
+      <PageHeader
+        title="Mi equipo"
+        subtitle="Las personas que trabajan contigo: tu productor y tu manager."
+        tip={<><b>Ellos también ven tu calendario</b>, así todos saben qué fechas vienen.</>}
+      />
 
       <section className="card" style={{ marginBottom: 24 }}>
+        <h2 className="section-title">Añadir a alguien</h2>
+        <p className="section-sub">Escribe su nombre, su correo y elige su papel.</p>
         <CollaboratorForm artistId={artist.id} plan={artist.plan} currentCount={collaborators.length} />
       </section>
 
@@ -57,7 +62,11 @@ export default async function EquipoPage() {
             </div>
           );
         })}
-        {collaborators.length === 0 && <p style={{ color: 'var(--muted)', fontSize: 14 }}>Sin productores ni managers agregados todavía.</p>}
+        {collaborators.length === 0 && (
+          <div className="card" style={{ gridColumn: '1 / -1' }}>
+            <EmptyState title="Todavía no has añadido a nadie" text="Si trabajas con un productor o un manager, añádelo arriba para que también vea tu calendario." />
+          </div>
+        )}
       </div>
     </DashboardShell>
   );

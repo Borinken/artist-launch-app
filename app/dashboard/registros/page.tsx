@@ -1,9 +1,12 @@
 import DashboardShell from '../_components/DashboardShell';
+import PageHeader from '../_components/PageHeader';
+import EmptyState from '../_components/EmptyState';
 import { getSessionArtist } from '@/lib/getSessionArtist';
 import { getRegistrations } from '@/lib/dashboardData';
-import { REGISTRATION_TYPE_LABELS } from '@/lib/registrationCatalog';
+import { REGISTRATION_TYPE_LABELS, REGISTRATION_TYPE_PLAIN } from '@/lib/registrationCatalog';
 
-const statusLabel: Record<string, string> = { pending: 'Pendiente', in_progress: 'En proceso', completed: 'Completo', blocked: 'Bloqueado' };
+const statusLabel: Record<string, string> = { pending: 'Esperando', in_progress: 'Lo estamos haciendo', completed: 'Listo', blocked: 'Necesita tu atención' };
+const statusPill: Record<string, string> = { pending: 'pill-team', in_progress: 'pill-you', completed: 'pill-done', blocked: 'pill-bad' };
 
 export default async function RegistrosPage() {
   const artist = await getSessionArtist();
@@ -15,41 +18,57 @@ export default async function RegistrosPage() {
 
   return (
     <DashboardShell artist={artist} artistId={artist.id}>
-      <h1 style={{ margin: '0 0 4px', fontSize: 28 }}>Mis registros</h1>
-      <p style={{ color: 'var(--muted)', fontSize: 14, margin: '0 0 24px' }}>
-        Estatus de tus registros de derechos. Tu manager en Royal Music Growth se encarga de tramitarlos.
-      </p>
+      <PageHeader
+        title="Proteger mis derechos"
+        subtitle="Estos son los trámites que hacen que tu música sea legalmente tuya y que puedas cobrar por ella."
+        tip={<><b>No tienes que hacer nada aquí.</b> Nosotros nos encargamos de tramitarlos; tú solo ves cómo va cada uno.</>}
+      />
 
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
+      <div className="grid-2">
         <section className="card">
-          <h2 style={{ marginTop: 0, fontSize: 16 }}>En proceso ({pending.length})</h2>
+          <h2 className="section-title">En marcha ({pending.length})</h2>
+          <p className="section-sub">Trámites que todavía se están haciendo.</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {pending.map((r: any) => (
-              <li key={r.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', fontSize: 14, display: 'flex', justifyContent: 'space-between' }}>
-                <span>{REGISTRATION_TYPE_LABELS[r.registration_type] ?? r.registration_type} <span style={{ color: 'var(--muted)' }}>· {r.tracks?.title ?? 'General'}</span></span>
-                <span className={`badge badge-${r.status}`}>{statusLabel[r.status] ?? r.status}</span>
-              </li>
-            ))}
-            {pending.length === 0 && <li style={{ color: 'var(--muted)', fontSize: 14 }}>Sin registros pendientes.</li>}
+            {pending.map((r: any) => <RegistrationRow key={r.id} r={r} />)}
           </ul>
+          {pending.length === 0 && (
+            <EmptyState title="Nada en marcha ahora" text="Cuando empecemos un trámite a tu nombre, lo verás aquí." />
+          )}
         </section>
 
         <section className="card">
-          <h2 style={{ marginTop: 0, fontSize: 16 }}>Completados ({completed.length})</h2>
+          <h2 className="section-title">Listos ({completed.length})</h2>
+          <p className="section-sub">Trámites ya terminados.</p>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {completed.map((r: any) => (
-              <li key={r.id} style={{ padding: '10px 0', borderBottom: '1px solid var(--border)', fontSize: 14 }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <span>{REGISTRATION_TYPE_LABELS[r.registration_type] ?? r.registration_type} <span style={{ color: 'var(--muted)' }}>· {r.tracks?.title ?? 'General'}</span></span>
-                  <span className="badge badge-completed">✅ Completo</span>
-                </div>
-                {r.completed_at && <div style={{ fontSize: 12, color: 'var(--muted)', marginTop: 2 }}>{new Date(r.completed_at).toLocaleDateString()}</div>}
-              </li>
-            ))}
-            {completed.length === 0 && <li style={{ color: 'var(--muted)', fontSize: 14 }}>Sin registros completados todavía.</li>}
+            {completed.map((r: any) => <RegistrationRow key={r.id} r={r} />)}
           </ul>
+          {completed.length === 0 && (
+            <EmptyState title="Todavía ninguno" text="Aquí irán apareciendo tus registros terminados." />
+          )}
         </section>
       </div>
     </DashboardShell>
+  );
+}
+
+function RegistrationRow({ r }: { r: any }) {
+  return (
+    <li style={{ padding: '14px 0', borderBottom: '1px solid var(--border)' }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, alignItems: 'flex-start', flexWrap: 'wrap' }}>
+        <div style={{ flex: '1 1 200px' }}>
+          <div style={{ fontSize: 15.5, fontWeight: 600 }}>{REGISTRATION_TYPE_LABELS[r.registration_type] ?? r.registration_type}</div>
+          <div style={{ fontSize: 13.5, color: 'var(--muted)', marginTop: 2 }}>
+            {r.tracks?.title ? `Canción: ${r.tracks.title}` : 'Para toda tu obra'}
+            {r.status === 'completed' && r.completed_at ? ` · ${new Date(r.completed_at).toLocaleDateString('es')}` : ''}
+          </div>
+        </div>
+        <span className={`pill ${statusPill[r.status] ?? 'pill-team'}`}>{statusLabel[r.status] ?? r.status}</span>
+      </div>
+      {REGISTRATION_TYPE_PLAIN[r.registration_type] && (
+        <p style={{ margin: '8px 0 0', fontSize: 13.5, color: 'var(--muted)', lineHeight: 1.5 }}>
+          {REGISTRATION_TYPE_PLAIN[r.registration_type]}
+        </p>
+      )}
+    </li>
   );
 }

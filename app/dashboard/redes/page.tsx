@@ -1,4 +1,5 @@
 import DashboardShell from '../_components/DashboardShell';
+import PageHeader from '../_components/PageHeader';
 import SocialAccountCard from '../_components/SocialAccountCard';
 import { getSessionArtist } from '@/lib/getSessionArtist';
 import { getSocialAccounts } from '@/lib/dashboardData';
@@ -13,8 +14,12 @@ export default async function RedesPage() {
 
   return (
     <DashboardShell artist={artist} artistId={artist.id}>
-      <h1 style={{ margin: '0 0 24px', fontSize: 28 }}>Redes sociales</h1>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 16 }}>
+      <PageHeader
+        title="Mis redes sociales"
+        subtitle="Añade tus perfiles para ver tus seguidores y oyentes en un solo lugar."
+        tip={<><b>Solo copia tu usuario y el enlace de tu perfil.</b> No pedimos tu contraseña de ninguna red.</>}
+      />
+      <div className="grid-tiles" style={{ gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))' }}>
         {SOCIAL_PLATFORMS.map((p) => (
           <SocialAccountCard
             key={p.value}

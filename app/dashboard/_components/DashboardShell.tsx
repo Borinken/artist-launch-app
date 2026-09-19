@@ -1,22 +1,35 @@
 'use client';
 
+import { useState } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { supabaseBrowser } from '@/lib/supabaseBrowser';
+import Icon from './Icon';
 
-const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Resumen', exact: true },
-  { href: '/dashboard/perfil', label: 'Perfil' },
-  { href: '/dashboard/canciones', label: 'Canciones' },
-  { href: '/dashboard/distribucion', label: 'Distribución' },
-  { href: '/dashboard/registros', label: 'Registros' },
-  { href: '/dashboard/contratos', label: 'Contratos' },
-  { href: '/dashboard/equipo', label: 'Equipo' },
-  { href: '/dashboard/monetizacion', label: 'Monetización' },
-  { href: '/dashboard/redes', label: 'Redes sociales' },
-  { href: '/dashboard/calendario', label: 'Calendario' },
+// Menú agrupado y con palabras de todos los días — sin jerga técnica.
+const NAV_GROUPS: { title: string | null; items: { href: string; label: string; icon: string; exact?: boolean }[] }[] = [
+  { title: null, items: [{ href: '/dashboard', label: 'Inicio', icon: 'home', exact: true }] },
+  {
+    title: 'Tu música',
+    items: [
+      { href: '/dashboard/canciones', label: 'Mis canciones', icon: 'music' },
+      { href: '/dashboard/distribucion', label: 'Publicar mi música', icon: 'upload' },
+      { href: '/dashboard/registros', label: 'Proteger mis derechos', icon: 'shield' },
+      { href: '/dashboard/contratos', label: 'Contratos y firmas', icon: 'file' },
+    ],
+  },
+  { title: 'Tu dinero', items: [{ href: '/dashboard/monetizacion', label: 'Mis ingresos', icon: 'money' }] },
+  {
+    title: 'Tu carrera',
+    items: [
+      { href: '/dashboard/equipo', label: 'Mi equipo', icon: 'users' },
+      { href: '/dashboard/redes', label: 'Mis redes sociales', icon: 'share' },
+      { href: '/dashboard/calendario', label: 'Mis fechas', icon: 'calendar' },
+      { href: '/dashboard/perfil', label: 'Mis datos', icon: 'user' },
+    ],
+  },
 ];
 
-const planLabel: Record<string, string> = { start: 'Start', pro: 'Pro', studio: 'Studio' };
+const planLabel: Record<string, string> = { start: 'Starter', pro: 'Professional', studio: 'Elite' };
 
 export default function DashboardShell({
   artist,
@@ -29,6 +42,7 @@ export default function DashboardShell({
 }) {
   const pathname = usePathname();
   const router = useRouter();
+  const [open, setOpen] = useState(false);
 
   async function handleLogout() {
     await supabaseBrowser.auth.signOut();
@@ -36,65 +50,96 @@ export default function DashboardShell({
     router.refresh();
   }
 
+  const displayName = artist.artist_name || artist.legal_name;
+
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <aside style={{
-        width: 240, flexShrink: 0, borderRight: '1px solid var(--border)',
-        padding: '24px 16px', position: 'sticky', top: 0, height: '100vh', display: 'flex', flexDirection: 'column',
-      }}>
-        <div style={{ padding: '0 8px', marginBottom: 24 }}>
-          <span style={{ fontWeight: 700, fontSize: 15, fontFamily: 'var(--font-serif)' }}>Artist Launch OS</span>
+    <div className="dash-shell">
+      <div className="dash-topbar">
+        <span style={{ fontWeight: 700, fontFamily: 'var(--font-serif)' }}>Artist Launch OS</span>
+        <button
+          onClick={() => setOpen(true)}
+          aria-label="Abrir menú"
+          className="btn btn-ghost"
+          style={{ padding: '8px 14px', fontSize: 14 }}
+        >
+          <Icon name="menu" size={18} /> Menú
+        </button>
+      </div>
+
+      {open && <div className="dash-scrim" onClick={() => setOpen(false)} />}
+
+      <aside className={`dash-side${open ? ' open' : ''}`}>
+        <div style={{ padding: '0 8px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <span style={{ fontWeight: 700, fontSize: 16, fontFamily: 'var(--font-serif)' }}>Artist Launch OS</span>
+          <button
+            onClick={() => setOpen(false)}
+            aria-label="Cerrar menú"
+            className="dash-close"
+            style={{ background: 'none', border: 'none', color: 'var(--text)', cursor: 'pointer', display: open ? 'block' : 'none' }}
+          >
+            <Icon name="close" />
+          </button>
         </div>
 
-        <div style={{ padding: '10px 8px', marginBottom: 20, borderRadius: 12, background: 'var(--card)' }}>
+        <div style={{ padding: 12, marginBottom: 8, borderRadius: 12, background: 'var(--card)', display: 'flex', gap: 12, alignItems: 'center' }}>
           <div style={{
-            width: 36, height: 36, borderRadius: '50%', marginBottom: 8,
+            width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
             background: 'linear-gradient(135deg, var(--accent), var(--accent-2))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 14, color: '#0a0a0c',
+            display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: 16, color: '#0a0a0c',
           }}>
-            {(artist.artist_name || artist.legal_name || '?').charAt(0).toUpperCase()}
+            {(displayName || '?').charAt(0).toUpperCase()}
           </div>
-          <div style={{ fontSize: 14, fontWeight: 600 }}>{artist.artist_name || artist.legal_name}</div>
-          <span className="badge" style={{ background: 'rgba(212,175,55,0.15)', color: 'var(--accent)', fontSize: 11, padding: '2px 10px', marginTop: 4, display: 'inline-block' }}>
-            Plan {planLabel[artist.plan] ?? artist.plan}
-          </span>
+          <div style={{ minWidth: 0 }}>
+            <div style={{ fontSize: 15, fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{displayName}</div>
+            <div style={{ fontSize: 12.5, color: 'var(--accent-3)' }}>Plan {planLabel[artist.plan] ?? artist.plan}</div>
+          </div>
         </div>
 
-        <nav style={{ display: 'flex', flexDirection: 'column', gap: 2, flex: 1 }}>
-          {NAV_ITEMS.map((item) => {
-            const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
-            return (
-              <a
-                key={item.href}
-                href={item.href}
-                style={{
-                  padding: '10px 12px', borderRadius: 8, fontSize: 14,
-                  color: isActive ? 'var(--text)' : 'var(--muted)',
-                  background: isActive ? 'var(--card)' : 'transparent',
-                  borderLeft: isActive ? '2px solid var(--accent)' : '2px solid transparent',
-                  transition: 'background 0.15s',
-                }}
-              >
-                {item.label}
-              </a>
-            );
-          })}
+        <nav style={{ flex: 1 }}>
+          {NAV_GROUPS.map((group, gi) => (
+            <div key={gi}>
+              {group.title && <div className="nav-group-title">{group.title}</div>}
+              {group.items.map((item) => {
+                const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className={`nav-link${isActive ? ' active' : ''}`}
+                    aria-current={isActive ? 'page' : undefined}
+                    onClick={() => setOpen(false)}
+                  >
+                    <Icon name={item.icon} />
+                    {item.label}
+                  </a>
+                );
+              })}
+            </div>
+          ))}
         </nav>
 
-        <button
-          onClick={handleLogout}
-          style={{
-            fontSize: 12, color: 'var(--muted)', padding: '10px 12px', background: 'none',
-            border: 'none', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit',
-          }}
-        >
-          Cerrar sesión
-        </button>
+        <div style={{ borderTop: '1px solid var(--border)', paddingTop: 12, marginTop: 12 }}>
+          <a
+            href="/dashboard/ayuda"
+            className={`nav-link${pathname.startsWith('/dashboard/ayuda') ? ' active' : ''}`}
+            onClick={() => setOpen(false)}
+          >
+            <Icon name="help" />
+            ¿Necesitas ayuda?
+          </a>
+          <button
+            onClick={handleLogout}
+            style={{
+              fontSize: 13.5, color: 'var(--muted)', padding: '10px 12px', background: 'none',
+              border: 'none', textAlign: 'left', cursor: 'pointer', fontFamily: 'inherit', width: '100%',
+            }}
+          >
+            Cerrar sesión
+          </button>
+        </div>
       </aside>
 
-      <main style={{ flex: 1, padding: '40px 32px 80px', maxWidth: 1000 }}>
-        {children}
-      </main>
+      <main className="dash-main">{children}</main>
     </div>
   );
 }
